@@ -21,13 +21,13 @@ static void parse_typedef() {
     }
 
     if (strcmp(IdentifierStr, "struct") == 0) {
-        add_to_global_output("typedef ");
-        add_to_global_output(IdentifierStr);
+        ADD_TO_GLOBAL("typedef ");
+        ADD_TO_GLOBAL(IdentifierStr);
 
         while (CurTok != '}') {
             get_next_token();
             if (CurTok == tok_identifier) {
-                add_to_global_output(IdentifierStr);
+                ADD_TO_GLOBAL(IdentifierStr);
             } else {
                 GlobalOutput[GlobalIndex++] = (char) CurTok;
             }
@@ -35,7 +35,7 @@ static void parse_typedef() {
         while (CurTok != ';') {
             get_next_token();
             if (CurTok == tok_identifier) {
-                add_to_global_output(IdentifierStr);
+                ADD_TO_GLOBAL(IdentifierStr);
             } else {
                 GlobalOutput[GlobalIndex++] = (char) CurTok;
             }
@@ -87,7 +87,7 @@ int main() {
 
     // Insert the correct includes for vector code to
     // do stuff like malloc
-    add_to_global_output("#include <stdlib.h>\n");
+    ADD_TO_GLOBAL("#include <stdlib.h>\n");
 
     get_next_token();
 
@@ -104,7 +104,7 @@ int main() {
             parse_typedef();
             break;
         case tok_identifier:
-            add_to_normal_output(IdentifierStr);
+            ADD_TO_NORMAL(IdentifierStr);
             break;
         case tok_eof:
 			printf("%d", ARRAYSIZE(SourceList));

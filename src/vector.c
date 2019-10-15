@@ -1,5 +1,3 @@
-#define ADD_TO_VEC(Str) \
-    add_to_output(VectorOutput, &VectorIndex, Str)
 static types VecTypes = { 0 };
 static variables VecVariables = { 0 };
 
@@ -22,7 +20,6 @@ static char* generate_vector(char* Type) {
     }
 
     // Guard to protect against redefinition
-    ADD_TO_VEC("#ifndef VECTOR_");
     ADD_TO_VEC("#ifndef VECTOR_");
     ADD_TO_VEC(Type);
     ADD_TO_VEC("_\n");
@@ -228,11 +225,11 @@ static bool parse_vector_function() {
         strcat(FuncName, VarType);
         strcat(FuncName, "_push");
 
-        add_to_normal_output(FuncName);
-        add_to_normal_output("(&");
-        add_to_normal_output(VarName);
-        add_to_normal_output(", ");
-        add_to_normal_output(Args.Next->Arg);
+        ADD_TO_NORMAL(FuncName);
+        ADD_TO_NORMAL("(&");
+        ADD_TO_NORMAL(VarName);
+        ADD_TO_NORMAL(", ");
+        ADD_TO_NORMAL(Args.Next->Arg);
 
         output_remaining_func_line();
         free_func_call_args(Args);
@@ -254,11 +251,11 @@ static bool parse_vector_function() {
         strcat(FuncName, VarType);
         strcat(FuncName, "_at");
 
-        add_to_normal_output(FuncName);
-        add_to_normal_output("(");
-        add_to_normal_output(VarName);
-        add_to_normal_output(", ");
-        add_to_normal_output(Args.Next->Arg);
+        ADD_TO_NORMAL(FuncName);
+        ADD_TO_NORMAL("(");
+        ADD_TO_NORMAL(VarName);
+        ADD_TO_NORMAL(", ");
+        ADD_TO_NORMAL(Args.Next->Arg);
 
         output_remaining_func_line();
         free_func_call_args(Args);
@@ -279,9 +276,9 @@ static bool parse_vector_function() {
         strcat(FuncName, VarType);
         strcat(FuncName, "_front");
 
-        add_to_normal_output(FuncName);
-        add_to_normal_output("(");
-        add_to_normal_output(VarName);
+        ADD_TO_NORMAL(FuncName);
+        ADD_TO_NORMAL("(");
+        ADD_TO_NORMAL(VarName);
 
         output_remaining_func_line();
         free_func_call_args(Args);
@@ -303,16 +300,16 @@ static bool parse_vector_function() {
         strcat(FuncName, VarType);
         strcat(FuncName, "_insert(&");
 
-        add_to_normal_output(FuncName);
+        ADD_TO_NORMAL(FuncName);
 
         func_call_args* Iterator = &Args;
         while (Iterator->Next != NULL) {
-            add_to_normal_output(Iterator->Arg); 
-            add_to_normal_output(", ");
+            ADD_TO_NORMAL(Iterator->Arg); 
+            ADD_TO_NORMAL(", ");
 
             Iterator = Iterator->Next;
         }
-        add_to_normal_output(Iterator->Arg);
+        ADD_TO_NORMAL(Iterator->Arg);
 
         output_remaining_func_line();
         free_func_call_args(Args);
@@ -334,9 +331,9 @@ static bool parse_vector_function() {
         strcat(FuncName, VarType);
         strcat(FuncName, "_free");
 
-        add_to_normal_output(FuncName);
-        add_to_normal_output("(&");
-        add_to_normal_output(VarName);
+        ADD_TO_NORMAL(FuncName);
+        ADD_TO_NORMAL("(&");
+        ADD_TO_NORMAL(VarName);
 
         output_remaining_func_line();
         free_func_call_args(Args);
@@ -364,7 +361,7 @@ static bool parse_vector() {
         free(FileName);
         strcat(IncludeStr, "\"\n");
 		CurVecFile++;
-		add_to_global_output(IncludeStr);
+		ADD_TO_GLOBAL(IncludeStr);
 	}
 	
 
@@ -421,19 +418,19 @@ static bool parse_vector() {
 
     // Change the variable name declaration
     // vector_'Type' name;
-    add_to_normal_output(VecName);
-    add_to_normal_output(" ");
+    ADD_TO_NORMAL(VecName);
+    ADD_TO_NORMAL(" ");
     free(VecName);
-    add_to_normal_output(VarName);
-    add_to_normal_output(";\n");
+    ADD_TO_NORMAL(VarName);
+    ADD_TO_NORMAL(";\n");
 
     // Insert a call to vector_'Type'_init
     add_tabs_to_normal_output();
-    add_to_normal_output("vector_");
-    add_to_normal_output(Type);
-    add_to_normal_output("_init(&");
-    add_to_normal_output(VarName);
-    add_to_normal_output(");\n");
+    ADD_TO_NORMAL("vector_");
+    ADD_TO_NORMAL(Type);
+    ADD_TO_NORMAL("_init(&");
+    ADD_TO_NORMAL(VarName);
+    ADD_TO_NORMAL(");\n");
 
     return true;
 }

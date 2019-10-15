@@ -81,7 +81,7 @@ static void output_remaining_func_line() {
     do {
         get_next_token();
         if (CurTok == tok_identifier) {
-            add_to_normal_output(IdentifierStr);
+            ADD_TO_NORMAL(IdentifierStr);
         } else {
             NormalOutput[NormalIndex++] = (char) CurTok;
         }
