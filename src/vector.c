@@ -1,3 +1,5 @@
+#define ADD_TO_VEC(Str) \
+    add_to_output(VectorOutput, &VectorIndex, Str)
 static types VecTypes = { 0 };
 static variables VecVariables = { 0 };
 
@@ -20,12 +22,13 @@ static char* generate_vector(char* Type) {
     }
 
     // Guard to protect against redefinition
-    add_to_output(VectorOutput, &VectorIndex, "#ifndef VECTOR_");
-    add_to_output(VectorOutput, &VectorIndex, Type);
-    add_to_output(VectorOutput, &VectorIndex, "_\n");
-    add_to_output(VectorOutput, &VectorIndex, "#define VECTOR_");
-    add_to_output(VectorOutput, &VectorIndex, Type);
-    add_to_output(VectorOutput, &VectorIndex, "_\n");
+    ADD_TO_VEC("#ifndef VECTOR_");
+    ADD_TO_VEC("#ifndef VECTOR_");
+    ADD_TO_VEC(Type);
+    ADD_TO_VEC("_\n");
+    ADD_TO_VEC("#define VECTOR_");
+    ADD_TO_VEC(Type);
+    ADD_TO_VEC("_\n");
 
     // Generate the vec struct
     // Typedef struct {
@@ -33,17 +36,17 @@ static char* generate_vector(char* Type) {
     //     int TotSize;
     //     int CurSize;
     // } vector_Type;
-    add_to_output(VectorOutput, &VectorIndex, "typedef struct {\n");
-    add_to_output(VectorOutput, &VectorIndex, TAB);
-    add_to_output(VectorOutput, &VectorIndex, Type);
-    add_to_output(VectorOutput, &VectorIndex, "* Items;\n");
-    add_to_output(VectorOutput, &VectorIndex, TAB);
-    add_to_output(VectorOutput, &VectorIndex, "int TotSize;\n");
-    add_to_output(VectorOutput, &VectorIndex, TAB);
-    add_to_output(VectorOutput, &VectorIndex, "int CurSize;\n");
-    add_to_output(VectorOutput, &VectorIndex, "} ");
-    add_to_output(VectorOutput, &VectorIndex, Name);
-    add_to_output(VectorOutput, &VectorIndex, ";\n");
+    ADD_TO_VEC("typedef struct {\n");
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC(Type);
+    ADD_TO_VEC("* Items;\n");
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC("int TotSize;\n");
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC("int CurSize;\n");
+    ADD_TO_VEC("} ");
+    ADD_TO_VEC(Name);
+    ADD_TO_VEC(";\n");
 
     // Generate the function calls
     //
@@ -53,62 +56,62 @@ static char* generate_vector(char* Type) {
     //      Vec->TotSize = 100;
     //      Vec->CurSize = 0;
     // }
-    add_to_output(VectorOutput, &VectorIndex, "void ");
-    add_to_output(VectorOutput, &VectorIndex, Name);
-    add_to_output(VectorOutput, &VectorIndex, "_init(");
-    add_to_output(VectorOutput, &VectorIndex, Name);
-    add_to_output(VectorOutput, &VectorIndex, " *Vec) {\n");
-    add_to_output(VectorOutput, &VectorIndex, TAB);
-    add_to_output(VectorOutput, &VectorIndex, "Vec->Items = malloc(100 * sizeof(");
-    add_to_output(VectorOutput, &VectorIndex, Type);
-    add_to_output(VectorOutput, &VectorIndex, "));\n");
-    add_to_output(VectorOutput, &VectorIndex, TAB);
-    add_to_output(VectorOutput, &VectorIndex, "Vec->TotSize = 100;\n");
-    add_to_output(VectorOutput, &VectorIndex, TAB);
-    add_to_output(VectorOutput, &VectorIndex, "Vec->CurSize = 0;\n");
-    add_to_output(VectorOutput, &VectorIndex, "}\n");
+    ADD_TO_VEC("void ");
+    ADD_TO_VEC(Name);
+    ADD_TO_VEC("_init(");
+    ADD_TO_VEC(Name);
+    ADD_TO_VEC(" *Vec) {\n");
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC("Vec->Items = malloc(100 * sizeof(");
+    ADD_TO_VEC(Type);
+    ADD_TO_VEC("));\n");
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC("Vec->TotSize = 100;\n");
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC("Vec->CurSize = 0;\n");
+    ADD_TO_VEC("}\n");
 
     // void vector_'Type'_expand(vector_'Type' *Vec) {
     //     Vec->TotSize = Vec->TotSize  * 2;
     //     Vec->Items = realloc(Vec->Items, sizeof('Type') * Vec->TotSize);
     // }
-    add_to_vector_output("void vector_");
-    add_to_vector_output(Type);
-    add_to_vector_output("_expand(vector_");
-    add_to_vector_output(Type);
-    add_to_vector_output(" *Vec) {\n");
-    add_to_vector_output(TAB);
-    add_to_vector_output("Vec->TotSize = Vec->TotSize * 2;\n");
-    add_to_vector_output(TAB);
-    add_to_vector_output("Vec->Items = realloc(Vec->Items, sizeof(");
-    add_to_vector_output(Type);
-    add_to_vector_output(") * Vec->TotSize);\n");
-    add_to_vector_output("}\n");
+    ADD_TO_VEC("void vector_");
+    ADD_TO_VEC(Type);
+    ADD_TO_VEC("_expand(vector_");
+    ADD_TO_VEC(Type);
+    ADD_TO_VEC(" *Vec) {\n");
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC("Vec->TotSize = Vec->TotSize * 2;\n");
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC("Vec->Items = realloc(Vec->Items, sizeof(");
+    ADD_TO_VEC(Type);
+    ADD_TO_VEC(") * Vec->TotSize);\n");
+    ADD_TO_VEC("}\n");
 
     // void Vector_'Type'_push(Vector_'Type' *Vec, 'Type' Item) {
     //      if (Vec->TotSize == Vec->CurSize) {
     //      }
     //      Vec->Items[Vec->CurSize++] = Item;
     //  }
-    add_to_vector_output("void ");
-    add_to_vector_output(Name);
-    add_to_vector_output("_push(");
-    add_to_vector_output(Name);
-    add_to_vector_output(" *Vec, ");
-    add_to_vector_output(Type);
-    add_to_vector_output(" Item) {\n");
-    add_to_vector_output(TAB);
-    add_to_vector_output("if (Vec->TotSize == Vec->CurSize) {\n");
-    add_to_vector_output(TAB);
-    add_to_vector_output(TAB);
-    add_to_vector_output("vector_");
-    add_to_vector_output(Type);
-    add_to_vector_output("_expand(Vec);\n");
-    add_to_vector_output(TAB);
-    add_to_vector_output("}\n");
-    add_to_vector_output(TAB);
-    add_to_vector_output("Vec->Items[Vec->CurSize++] = Item;\n");
-    add_to_vector_output("}\n");
+    ADD_TO_VEC("void ");
+    ADD_TO_VEC(Name);
+    ADD_TO_VEC("_push(");
+    ADD_TO_VEC(Name);
+    ADD_TO_VEC(" *Vec, ");
+    ADD_TO_VEC(Type);
+    ADD_TO_VEC(" Item) {\n");
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC("if (Vec->TotSize == Vec->CurSize) {\n");
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC("vector_");
+    ADD_TO_VEC(Type);
+    ADD_TO_VEC("_expand(Vec);\n");
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC("}\n");
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC("Vec->Items[Vec->CurSize++] = Item;\n");
+    ADD_TO_VEC("}\n");
 
     //void vector_'Type'_insert(vector_'Type' *Vec, 'Type' Pos, 'Type' Item) {
     //    for ('Type' i = Vec->CurSize + 1; i > Pos - 1; i--) {
@@ -117,66 +120,62 @@ static char* generate_vector(char* Type) {
     //    Vec->Items[Pos] = Item;
     //    Vec->CurSize++;
     //}
-    add_to_vector_output("void vector_");
-    add_to_vector_output(Type);
-    add_to_vector_output("_insert(vector_");
-    add_to_vector_output(Type);
-    add_to_vector_output(" *Vec, int Pos, ");
-    add_to_vector_output(Type);
-    add_to_vector_output(" Item) {\n");
-    add_to_vector_output(TAB);
-    add_to_vector_output("if (Vec->TotSize == Vec->CurSize) {\n");
-    add_to_vector_output(TAB);
-    add_to_vector_output(TAB);
-    add_to_vector_output("vector_");
-    add_to_vector_output(Type);
-    add_to_vector_output("_expand(Vec);\n");
-    add_to_vector_output(TAB);
-    add_to_vector_output("}\n");
-    add_to_vector_output(TAB);
-    add_to_vector_output("for (int i = Vec->CurSize + 1; i > Pos - 1; i--) {\n");
-    add_to_vector_output(TAB);
-    add_to_vector_output(TAB);
-    add_to_vector_output("Vec->Items[i+1] = Vec->Items[i];\n");
-    add_to_vector_output(TAB);
-    add_to_vector_output("}\n");
-    add_to_vector_output(TAB);
-    add_to_vector_output("Vec->Items[Pos] = Item;\n");
-    add_to_vector_output(TAB);
-    add_to_vector_output("Vec->CurSize++;\n");
-    add_to_vector_output("}\n");
-    
-
-    
+    ADD_TO_VEC("void vector_");
+    ADD_TO_VEC(Type);
+    ADD_TO_VEC("_insert(vector_");
+    ADD_TO_VEC(Type);
+    ADD_TO_VEC(" *Vec, int Pos, ");
+    ADD_TO_VEC(Type);
+    ADD_TO_VEC(" Item) {\n");
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC("if (Vec->TotSize == Vec->CurSize) {\n");
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC("vector_");
+    ADD_TO_VEC(Type);
+    ADD_TO_VEC("_expand(Vec);\n");
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC("}\n");
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC("for (int i = Vec->CurSize + 1; i > Pos - 1; i--) {\n");
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC("Vec->Items[i+1] = Vec->Items[i];\n");
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC("}\n");
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC("Vec->Items[Pos] = Item;\n");
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC("Vec->CurSize++;\n");
+    ADD_TO_VEC("}\n");
 
     //  inline 'Type'* vector_'Type'_at(vector_'Type' Vec, int Pos) {
     //      return &Vec.Items[Pos]
     //  }
-    add_to_vector_output("static inline ");
-    add_to_vector_output(Type);
-    add_to_vector_output("* vector_");
-    add_to_vector_output(Type);
-    add_to_vector_output("_at(vector_");
-    add_to_vector_output(Type);
-    add_to_vector_output(" Vec, int Pos) {\n");
-    add_to_vector_output(TAB);
-    add_to_vector_output("return &Vec.Items[Pos];\n");
-    add_to_vector_output("}\n");
-
+    ADD_TO_VEC("static inline ");
+    ADD_TO_VEC(Type);
+    ADD_TO_VEC("* vector_");
+    ADD_TO_VEC(Type);
+    ADD_TO_VEC("_at(vector_");
+    ADD_TO_VEC(Type);
+    ADD_TO_VEC(" Vec, int Pos) {\n");
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC("return &Vec.Items[Pos];\n");
+    ADD_TO_VEC("}\n");
 
     // inline 'Type'* vector_'Type'_front(vector_'Type' Vec) {
     //      return &Vec.Items[0];
     // }
-    add_to_vector_output("static inline ");
-    add_to_vector_output(Type);
-    add_to_vector_output("* vector_");
-    add_to_vector_output(Type);
-    add_to_vector_output("_front(vector_");
-    add_to_vector_output(Type);
-    add_to_vector_output(" Vec) {\n");
-    add_to_vector_output(TAB);
-    add_to_vector_output("return &Vec.Items[0];\n");
-    add_to_vector_output("}\n");
+    ADD_TO_VEC("static inline ");
+    ADD_TO_VEC(Type);
+    ADD_TO_VEC("* vector_");
+    ADD_TO_VEC(Type);
+    ADD_TO_VEC("_front(vector_");
+    ADD_TO_VEC(Type);
+    ADD_TO_VEC(" Vec) {\n");
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC("return &Vec.Items[0];\n");
+    ADD_TO_VEC("}\n");
 
     // static inline void vector_'Type'_free(vector_'Type' *Vec) {
     //      free(Vec->Items);
@@ -184,23 +183,23 @@ static char* generate_vector(char* Type) {
     //      Vec->CurSize = 0;
     //      Vec->TotSize = 0;
     // }
-    add_to_vector_output("static inline void vector_");
-    add_to_vector_output(Type);
-    add_to_vector_output("_free(vector_");
-    add_to_vector_output(Type);
-    add_to_vector_output(" *Vec) {\n");
-    add_to_vector_output(TAB);
-    add_to_vector_output("free(Vec->Items);\n");
-    add_to_vector_output(TAB);
-    add_to_vector_output("Vec->Items = 0;\n");
-    add_to_vector_output(TAB);
-    add_to_vector_output("Vec->CurSize = 0;\n");
-    add_to_vector_output(TAB);
-    add_to_vector_output("Vec->TotSize = 0;\n");
-    add_to_vector_output("}\n");
+    ADD_TO_VEC("static inline void vector_");
+    ADD_TO_VEC(Type);
+    ADD_TO_VEC("_free(vector_");
+    ADD_TO_VEC(Type);
+    ADD_TO_VEC(" *Vec) {\n");
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC("free(Vec->Items);\n");
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC("Vec->Items = 0;\n");
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC("Vec->CurSize = 0;\n");
+    ADD_TO_VEC(TAB);
+    ADD_TO_VEC("Vec->TotSize = 0;\n");
+    ADD_TO_VEC("}\n");
 
     // End the redefinition guard
-    add_to_vector_output("#endif\n");
+    ADD_TO_VEC("#endif\n");
 
     return Name;
 }
