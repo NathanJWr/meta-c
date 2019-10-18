@@ -1,18 +1,6 @@
-typedef struct _variables {
-    char* Name;
-    char* Type;
-
-    struct _variables *Next;
-} variables;
-
-typedef struct _types {
-    char* Type;
-
-    struct _types *Next;
-} types;
-
-
-static void empty_type_list(types *Types) {
+#include "lists.h"
+static void
+empty_type_list(types *Types) {
     types *Iterator = Types;
 
     // Free the first one manually because the head is
@@ -29,7 +17,8 @@ static void empty_type_list(types *Types) {
     Types->Next = NULL;
     Types->Type = NULL;
 }
-static void add_type_to_list(types *Types, char *TypeName) {
+static void
+add_type_to_list(types *Types, char *TypeName) {
     types *NewNode = malloc(sizeof(types));
     NewNode->Type = (char *) malloc(strlen(TypeName) * sizeof(char));
     NewNode->Next = NULL;
@@ -45,9 +34,10 @@ static void add_type_to_list(types *Types, char *TypeName) {
     LastNode->Next = NewNode;
 }
 
-static void add_var_to_list(variables *Vars,
-                            char *TypeName,
-                            char* VarName) {
+static void 
+add_var_to_list(variables *Vars,
+                char *TypeName,
+                char* VarName) {
     variables *NewNode = malloc(sizeof(variables));
     NewNode->Name = (char *) malloc(strlen(VarName) * sizeof(char));
     NewNode->Type = (char *) malloc(strlen(TypeName) * sizeof(char));
@@ -65,7 +55,8 @@ static void add_var_to_list(variables *Vars,
     LastNode->Next = NewNode;
 }
 
-static bool not_in_list(types *Types, char *TypeName) {
+static bool
+not_in_list(types *Types, char *TypeName) {
     types *Iterator = Types;
     while (Iterator != NULL) {
         if (strcmp(Iterator->Type, TypeName) == 0)
@@ -76,7 +67,8 @@ static bool not_in_list(types *Types, char *TypeName) {
     return true;
 }
 
-static char* get_var_type(variables *Vars, char* VarName) {
+static char*
+get_var_type(variables *Vars, char* VarName) {
     variables *Iterator = Vars;
     while (Iterator != NULL) {
         if (strcmp(Iterator->Name, VarName) == 0) {

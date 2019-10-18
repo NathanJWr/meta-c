@@ -1,7 +1,6 @@
-static types VecTypes = { 0 };
-static variables VecVariables = { 0 };
-
-static char* generate_vector(char* Type) {
+#include "vector.h"
+static char*
+generate_vector(char* Type) {
     char* Name = malloc(100 * sizeof(char));
     strcat(Name, "vector_");
     strcat(Name, Type);
@@ -201,7 +200,8 @@ static char* generate_vector(char* Type) {
     return Name;
 }
 
-static bool parse_vector_function() {
+static bool
+parse_vector_function() {
     get_next_token();
 
     if (strcmp(IdentifierStr, "push") == 0) {
@@ -342,7 +342,8 @@ static bool parse_vector_function() {
 }
 
 // Caller Requirements: free returned value
-static char* get_vector_file_name() {
+static char*
+get_vector_file_name() {
     char* VecOutName = (char *)malloc(sizeof(char) * 100);
     strcat(VecOutName, "__vector");
     char Num[10] = { 0 };
@@ -351,8 +352,9 @@ static char* get_vector_file_name() {
     strcat(VecOutName, ".h");
     return VecOutName;
 }
-static int CurVecFile = -1;
-static bool parse_vector() {
+
+static bool
+parse_vector() {
 	if (CurVecFile < SourceFileCount) {
         char IncludeStr[100] = { 0 };
         strcat(IncludeStr, "#include \"");
@@ -435,6 +437,7 @@ static bool parse_vector() {
     return true;
 }
 
-static void empty_vec_types() {
+static void
+empty_vec_types() {
     empty_type_list(&VecTypes);
 }

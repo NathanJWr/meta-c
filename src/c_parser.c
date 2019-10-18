@@ -1,18 +1,6 @@
-typedef enum {
-    tok_eof = -1,
-    tok_identifier = -2,
-
-    tok_vector = -3,
-    tok_template = -4,
-    tok_typedef = -5,
-} token;
-
-char IdentifierStr[100];
-static int CurrentLine = 0;
-static int LastChar = ' ';
-
-static int gettok() {
-
+#include "c_parser.h"
+static int
+gettok() {
     if (LastChar == '\n')
         CurrentLine++;
     if (LastChar == '{')
@@ -49,7 +37,40 @@ static int gettok() {
     return ThisChar;
 }
 
-static int CurTok;
-static int get_next_token() {
+static int
+get_next_token() {
     return CurTok = gettok();
+}
+
+static void
+parse_typedef() {
+    get_next_token(); // Eat 'typedef'
+
+    while (CurTok != tok_identifier) {
+        get_next_token();
+    }
+
+    if (strcmp(IdentifierStr, "struct") == 0) {
+        ADD_TO_GLOBAL("typedef ");
+        ADD_TO_GLOBAL(IdentifierStr);
+
+        while (CurTok != '}') {
+            get_next_token();
+            if (CurTok == tok_identifier) {
+                ADD_TO_GLOBAL(IdentifierStr);
+            } else {
+                GlobalOutput[GlobalIndex++] = (char) CurTok;
+            }
+        }
+        while (CurTok != ';') {
+            get_next_token();
+            if (CurTok == tok_identifier) {
+                ADD_TO_GLOBAL(IdentifierStr);
+            } else {
+                GlobalOutput[GlobalIndex++] = (char) CurTok;
+            }
+        }
+        get_next_token(); // Eat newline.
+        GlobalOutput[GlobalIndex++] = '\n';
+    }
 }

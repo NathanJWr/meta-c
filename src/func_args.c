@@ -1,10 +1,6 @@
-typedef struct _func_call_args { 
-    char* Arg;
-
-    struct _func_call_args *Next;
-} func_call_args;
-
-static void get_func_arg(char* Arg) {
+#include "func_args.h"
+static void
+get_func_arg(char* Arg) {
     while (1) {
         if (CurTok == ',')
             return;
@@ -23,7 +19,8 @@ static void get_func_arg(char* Arg) {
     }
 }
 
-static void free_func_call_args(func_call_args Args) {
+static void
+free_func_call_args(func_call_args Args) {
     func_call_args *Iterator = &Args;
 
     // The first Node doesn't have to free the func_call_args
@@ -37,7 +34,9 @@ static void free_func_call_args(func_call_args Args) {
         Iterator = Temp;
     }
 }
-static func_call_args get_func_args() {
+
+static func_call_args 
+get_func_args() {
     func_call_args FuncArgs = { 0 };
 
     func_call_args* Iterator = &FuncArgs;
@@ -70,7 +69,8 @@ static func_call_args get_func_args() {
     return FuncArgs;
 }
 
-static void output_remaining_func_line() {
+static void 
+output_remaining_func_line() {
     // If you've already hit the end of the function args
     if (CurTok == ')') {
         NormalOutput[NormalIndex++] = (char) CurTok;

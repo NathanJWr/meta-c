@@ -13,38 +13,6 @@ static int SourceFileCount = 0;
 #include "func_args.c"
 #include "vector.c"
 
-static void parse_typedef() {
-    get_next_token(); // Eat 'typedef'
-
-    while (CurTok != tok_identifier) {
-        get_next_token();
-    }
-
-    if (strcmp(IdentifierStr, "struct") == 0) {
-        ADD_TO_GLOBAL("typedef ");
-        ADD_TO_GLOBAL(IdentifierStr);
-
-        while (CurTok != '}') {
-            get_next_token();
-            if (CurTok == tok_identifier) {
-                ADD_TO_GLOBAL(IdentifierStr);
-            } else {
-                GlobalOutput[GlobalIndex++] = (char) CurTok;
-            }
-        }
-        while (CurTok != ';') {
-            get_next_token();
-            if (CurTok == tok_identifier) {
-                ADD_TO_GLOBAL(IdentifierStr);
-            } else {
-                GlobalOutput[GlobalIndex++] = (char) CurTok;
-            }
-        }
-        get_next_token(); // Eat newline.
-        GlobalOutput[GlobalIndex++] = '\n';
-    }
-}
-
 #define OutputBufferSize 20000
 static void output_to_file(char* Src) {
 	char OutputName[100] = { 0 };
@@ -75,6 +43,7 @@ static void output_to_file(char* Src) {
 int main() {
 	char *SourceList[] = { "test.c",
 						   "test2.c",};
+	printf("%d\n", ARRAYSIZE(SourceList));
     SourceFile = fopen(SourceList[SourceFileCount], "r");
     GlobalOutput = (char *) malloc(OutputBufferSize * sizeof(char));
     GlobalIndex = 0;
@@ -87,7 +56,7 @@ int main() {
 
     // Insert the correct includes for vector code to
     // do stuff like malloc
-    ADD_TO_GLOBAL("#include <stdlib.h>\n");
+    ADD_TO_VEC("#include <stdlib.h>\n");
 
     get_next_token();
 
@@ -107,11 +76,10 @@ int main() {
             ADD_TO_NORMAL(IdentifierStr);
             break;
         case tok_eof:
-			printf("%d", ARRAYSIZE(SourceList));
 			output_to_file(SourceList[SourceFileCount]);
             empty_vec_types();
 			fclose(SourceFile);
-			if (SourceFileCount < 1) {
+			if (SourceFileCount < ARRAYSIZE(SourceList) - 1) {
 				SourceFileCount++;
     			SourceFile = fopen(SourceList[SourceFileCount], "r");
 				LastChar = ' ';
