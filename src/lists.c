@@ -54,6 +54,20 @@ add_var_to_list(variables *Vars,
 
     LastNode->Next = NewNode;
 }
+static bool
+var_in_list(variables *Vars, char *VarName) {
+    variables *Iterator = Vars;
+    while (Iterator != NULL) {
+		if (Iterator->Name == NULL) {
+			return false;
+		}
+        if (strcmp(Iterator->Name, VarName) == 0)
+            return true;
+
+        Iterator = Iterator->Next;
+    }
+    return false;
+}
 
 static bool
 not_in_list(types *Types, char *TypeName) {

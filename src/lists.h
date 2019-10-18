@@ -16,6 +16,7 @@ typedef struct _types {
 static void empty_type_list(types *Types);
 static void add_type_to_list(types *Types, char *TypeName);
 static void add_var_to_list(variables *Vars, char *TypeName, char* VarName);
+static bool var_in_list(variables *Vars, char *VarName);
 static bool not_in_list(types *Types, char *TypeName);
 static char* get_var_type(variables *Vars, char* VarName);
 

@@ -27,6 +27,18 @@ gettok() {
 
         return tok_identifier;
     }
+    if (isdigit(LastChar)) {
+        char NumStr[100] = {0};
+        for (int i = 0; i < 100; i++) {
+            NumStr[i] = LastChar;	
+            LastChar = fgetc(SourceFile);
+            if (!isdigit(LastChar) || LastChar != '.') {
+                break;
+            }
+        }
+        strcpy(IdentifierStr, NumStr);
+        return tok_constant;
+    }
 
     if (LastChar == EOF)
         return tok_eof;

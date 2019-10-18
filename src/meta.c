@@ -40,9 +40,18 @@ static void output_to_file(char* Src) {
 	fclose(VecFile);
 }
 
+
+static bool
+tracked_var(char *IdentifierStr) {
+    if (var_in_list(&VecVariables, IdentifierStr)) {
+        parse_vector_var(IdentifierStr);
+        return true;
+    }
+    return false;
+}
+
 int main() {
-	char *SourceList[] = { "test.c",
-						   "test2.c",};
+	char *SourceList[] = { "test3.c"};
 	printf("%d\n", ARRAYSIZE(SourceList));
     SourceFile = fopen(SourceList[SourceFileCount], "r");
     GlobalOutput = (char *) malloc(OutputBufferSize * sizeof(char));
@@ -53,11 +62,6 @@ int main() {
 
     VectorOutput = (char *) malloc(OutputBufferSize * sizeof(char));
     VectorIndex = 0;
-
-    // Insert the correct includes for vector code to
-    // do stuff like malloc
-    ADD_TO_VEC("#include <stdlib.h>\n");
-
     get_next_token();
 
     bool Running = true;
@@ -73,7 +77,9 @@ int main() {
             parse_typedef();
             break;
         case tok_identifier:
-            ADD_TO_NORMAL(IdentifierStr);
+            if (!tracked_var(IdentifierStr)) {
+                ADD_TO_NORMAL(IdentifierStr);
+            }
             break;
         case tok_eof:
 			output_to_file(SourceList[SourceFileCount]);
@@ -87,6 +93,9 @@ int main() {
 			} else {
             	Running = false;
 			}
+            break;
+        case tok_constant:
+            ADD_TO_NORMAL(IdentifierStr);
             break;
         default:
             NormalOutput[NormalIndex++] = (char) CurTok;

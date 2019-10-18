@@ -201,6 +201,38 @@ generate_vector(char* Type) {
 }
 
 static bool
+parse_vector_var(char* VarName) {
+    get_next_token();
+    if (CurTok == '[') {
+        ADD_TO_NORMAL("*vector_");
+        ADD_TO_NORMAL(get_var_type(&VecVariables, VarName));
+        ADD_TO_NORMAL("_at(");
+        ADD_TO_NORMAL(VarName);
+        ADD_TO_NORMAL(", ");
+        
+        get_next_token();
+		if (CurTok == tok_constant || CurTok == tok_identifier) {
+		    ADD_TO_NORMAL(IdentifierStr);
+		} else if (CurTok > 0) {
+            NormalOutput[NormalIndex++] = (char) CurTok;
+        } else {
+        	return log_error("Expected number after '['", CurrentLine);
+        }
+        ADD_TO_NORMAL(")");
+		
+    } else {
+        char Error[100];
+        strcat(Error, "Unknown symbol after ");
+        strcat(Error, VarName);
+        strcat(Error, ".");
+        return log_error(Error, CurrentLine);
+    }
+    get_next_token(); // eat ']'
+    
+    return true;
+}
+
+static bool
 parse_vector_function() {
     get_next_token();
 
@@ -364,6 +396,9 @@ parse_vector() {
         strcat(IncludeStr, "\"\n");
 		CurVecFile++;
 		ADD_TO_GLOBAL(IncludeStr);
+
+        // Need this for malloc and realloc
+        ADD_TO_VEC("#include <stdlib.h>\n");
 	}
 	
 

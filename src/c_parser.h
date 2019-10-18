@@ -7,6 +7,7 @@ typedef enum {
     tok_vector = -3,
     tok_template = -4,
     tok_typedef = -5,
+	tok_constant = -6,
 } token;
 
 char IdentifierStr[100];
