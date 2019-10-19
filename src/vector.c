@@ -1,14 +1,18 @@
 #include "vector.h"
+#define ARRAY_CLEARED(name, type, size) \
+    type name[size] = { 0 }; \
+    memset(&name[0], 0, sizeof(name));
+
 static char*
 generate_vector(char* Type) {
-    char* Name = malloc(100 * sizeof(char));
+    char* Name = calloc(100, sizeof(char));
     strcat(Name, "vector_");
     strcat(Name, Type);
 
     // Make sure that the Type of vector container
     // that is getting generated does not already exist.
     if (VecTypes.Type == NULL) {
-        VecTypes.Type = malloc(strlen(Type) * sizeof(char));
+        VecTypes.Type = calloc(strlen(Type), sizeof(char));
         strcpy(VecTypes.Type, Type);
     } else {
         if (not_in_list(&VecTypes, Type)) {
@@ -221,7 +225,7 @@ parse_vector_var(char* VarName) {
         ADD_TO_NORMAL(")");
 		
     } else {
-        char Error[100];
+        ARRAY_CLEARED(Error, char, 100);
         strcat(Error, "Unknown symbol after ");
         strcat(Error, VarName);
         strcat(Error, ".");
@@ -252,7 +256,7 @@ parse_vector_function() {
             return false;
         }
 
-        char FuncName[100] = { 0 };
+        ARRAY_CLEARED(FuncName, char, 100);
         strcat(FuncName, "vector_");
         strcat(FuncName, VarType);
         strcat(FuncName, "_push");
@@ -278,7 +282,7 @@ parse_vector_function() {
         char* VarName = Args.Arg;
 
         char* VarType = get_var_type(&VecVariables, VarName);
-        char FuncName[100] = { 0 };
+        ARRAY_CLEARED(FuncName, char, 100);
         strcat(FuncName, "*vector_");
         strcat(FuncName, VarType);
         strcat(FuncName, "_at");
@@ -303,7 +307,7 @@ parse_vector_function() {
         char* VarName = Args.Arg;
 
         char* VarType = get_var_type(&VecVariables, VarName);
-        char FuncName[100] = { 0 };
+        ARRAY_CLEARED(FuncName, char, 100);
         strcat(FuncName, "*vector_");
         strcat(FuncName, VarType);
         strcat(FuncName, "_front");
@@ -327,7 +331,7 @@ parse_vector_function() {
         char* VarName = Args.Arg;
 
         char* VarType = get_var_type(&VecVariables, VarName);
-        char FuncName[100] = { 0 };
+        ARRAY_CLEARED(FuncName, char, 100);
         strcat(FuncName, "vector_");
         strcat(FuncName, VarType);
         strcat(FuncName, "_insert(&");
@@ -358,7 +362,7 @@ parse_vector_function() {
         char* VarName = Args.Arg;
 
         char* VarType = get_var_type(&VecVariables, VarName);
-        char FuncName[100] = { 0 };
+        ARRAY_CLEARED(FuncName, char, 100);
         strcat(FuncName, "vector_");
         strcat(FuncName, VarType);
         strcat(FuncName, "_free");
@@ -376,9 +380,9 @@ parse_vector_function() {
 // Caller Requirements: free returned value
 static char*
 get_vector_file_name() {
-    char* VecOutName = (char *)malloc(sizeof(char) * 100);
+    char* VecOutName = (char *)calloc(100, sizeof(char));
     strcat(VecOutName, "__vector");
-    char Num[10] = { 0 };
+    ARRAY_CLEARED(Num, char, 10);
     sprintf(Num,"%d",SourceFileCount);
     strcat(VecOutName, Num);
     strcat(VecOutName, ".h");
@@ -388,7 +392,8 @@ get_vector_file_name() {
 static bool
 parse_vector() {
 	if (CurVecFile < SourceFileCount) {
-        char IncludeStr[100] = { 0 };
+        ARRAY_CLEARED(IncludeStr, char, 100);
+
         strcat(IncludeStr, "#include \"");
         char* FileName = get_vector_file_name();
         strcat(IncludeStr, FileName);
@@ -444,10 +449,10 @@ parse_vector() {
 
 
     if (VecVariables.Name == NULL) {
-        VecVariables.Name = malloc(strlen(VarName) * sizeof(char));
+        VecVariables.Name = calloc(strlen(VarName), sizeof(char));
         strcpy(VecVariables.Name, VarName);
 
-        VecVariables.Type = malloc(strlen(Type) * sizeof(char));
+        VecVariables.Type = calloc(strlen(Type), sizeof(char));
         strcpy(VecVariables.Type, Type);
     } else {
         add_var_to_list(&VecVariables, Type, VarName);

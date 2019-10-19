@@ -54,13 +54,13 @@ int main() {
 	char *SourceList[] = { "test3.c"};
 	printf("%d\n", ARRAYSIZE(SourceList));
     SourceFile = fopen(SourceList[SourceFileCount], "r");
-    GlobalOutput = (char *) malloc(OutputBufferSize * sizeof(char));
+    GlobalOutput = (char *) calloc(OutputBufferSize, sizeof(char));
     GlobalIndex = 0;
 
-    NormalOutput = (char *) malloc(OutputBufferSize * sizeof(char));
+    NormalOutput = (char *) calloc(OutputBufferSize, sizeof(char));
     NormalIndex = 0;
 
-    VectorOutput = (char *) malloc(OutputBufferSize * sizeof(char));
+    VectorOutput = (char *) calloc(OutputBufferSize, sizeof(char));
     VectorIndex = 0;
     get_next_token();
 
