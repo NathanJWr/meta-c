@@ -28,10 +28,9 @@ class Token:
 
 last_char: str = ' '
 identifier_string: str = ""
-num_string: str
-current_line = 0
+current_line = 1
 num_tabs = 0
-cur_tok: Union[Token, str]
+cur_tok: Token
 cur_file = open("test.c", 'r')
 
 class Output:
@@ -70,7 +69,7 @@ def parse_vector(output: Output, tokens: deque) -> None:
     return
 
 def log_error(token: Token, error: str) -> None:
-    print(str(token.line_num) + ": " + error)
+    print(f'{token.line_num}' + ": " + error)
 
 def parse(output: Output, tokens: deque) -> None:
     while tokens:
@@ -144,6 +143,8 @@ while (1):
     token_list.append(tok)
     if tok.val == Tok.eof:
         break
+for token in token_list:
+    print(str(token.line_num) + ": " + token.string)
 output = Output()
 parse(output, token_list)
 
