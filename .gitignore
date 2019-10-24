@@ -2,3 +2,4 @@ __*
 *.out
 *.exe
 meta
+.mypy_cache/
