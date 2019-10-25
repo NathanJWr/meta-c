@@ -21,5 +21,5 @@ while (1):
 
 output = Output()
 parse(output, token_list)
-print(output.vector_out)
 
+print(output.normal_out)

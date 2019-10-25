@@ -1,28 +1,128 @@
 from logging import log_error
 from output import Output
+from token import Token, Tok
 
 from collections import deque
+from typing import Dict, List
+
+def get_func_arg(tokens: deque) -> str:
+    arg = ""
+    while 1:
+        token = tokens[0]
+        if token.string == ",":
+            return arg
+        elif token.string.isspace():
+            return arg
+        elif token.string == ")":
+            return arg
+        elif token.val == Tok.identifier:
+            arg += token.string
+        else:
+            arg += token.string
+        tokens.popleft()
+
+
+def get_func_args(tokens: deque) -> List:
+    token = tokens[0]
+    args = []
+    while token.string != ")":
+        while token.string == "," or token.string.isspace():
+            tokens.popleft()
+            token = tokens[0]
+        args.append(get_func_arg(tokens))
+        token = tokens[0]
+    return args
+
 class Vector:
     output: Output
+    variables: Dict[str, str] = dict()
 
     # should be given output.vector_out
     def __init__(self, output: Output):
         self.output = output
 
     def parse(self, tokens: deque) -> None:
+        normal_out: str = self.output.normal_out
+        token: Token
+        var_name: str = ""
+        vec_name: str = ""
+        vec_type: str = ""
+
         tokens.popleft() # eat 'vector'
         token = tokens[0]
+        if token.string == "_":
+            return self.parse_function(tokens)
         if token.string != "<":
             log_error(token, "Expected '<' in vector declaration")
         tokens.popleft() # eat '<'
-        vec_type = tokens[0]
-        name = self.generate_definition(vec_type.string)
+
+        vec_type = tokens[0].string
+        vec_name = self.generate_definition(vec_type)
+
         tokens.popleft() # eat '>'
         if token.string != ">":
-            log_error(token, "Expected '>' in ector declaration")
+            log_error(token, "Expected '>' in vector declaration")
 
+        # make sure you don't hit the end of statment before finding a var name
+        while token.val != Tok.identifier:
+            if token.val == Tok.semicolon:
+                log_error(token, "Expected variable name in vector declaration")
+            tokens.popleft()
+            token = tokens[0]
 
+        # get whole var name
+        while token.val != Tok.semicolon:
+            var_name += token.string
+            tokens.popleft()
+            token = tokens[0]
+        self.variables[var_name] = vec_type
+
+        while token.val != Tok.semicolon:
+            token = tokens.popleft()
+        tokens.popleft()
+        
+        # vector_'type' name;
+        normal_out += vec_name + " " + var_name + ";\n"
+        # insert call to vector_'type'_init
+        normal_out += "vector_" + vec_type + "_init(&" + var_name + ");\n"
+        self.output.normal_out = normal_out
         return
+
+    def parse_function(self, tokens: deque) -> None:
+        normal_out = self.output.normal_out
+        tokens.popleft() # "eat '_'
+        token = tokens[0]
+        var_type = ""
+        if token.string == "push":
+            tokens.popleft() # "eat 'push'
+            tokens.popleft() # "eat '('
+            args = get_func_args(tokens)
+            if len(args) != 2:
+                log_error(tokens[0], "Invalid number of arguments in call to 'vector_push'")
+
+            var_name = args[0] # expect first arg to be name
+
+            if var_name in self.variables:
+                var_type = self.variables[var_name]
+            else: 
+                log_error(tokens[0], "Variable '" + var_name + "' does not exist.")
+                return
+
+            normal_out += "vector_" + var_type + "_push"
+            normal_out += "(&" + var_name + ", " + args[1]
+        else:
+            tokens.popleft()
+
+        token = tokens[0]
+        while token.val != Tok.semicolon:
+            normal_out += token.string
+            tokens.popleft()
+            token = tokens[0]
+        normal_out += ";\n"
+        self.output.normal_out = normal_out
+
+
+
 
     def generate_definition(self, vec_type: str) -> str:
         tab = "    "
