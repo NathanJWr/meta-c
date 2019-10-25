@@ -16,7 +16,12 @@ class Vector:
             log_error(token, "Expected '<' in vector declaration")
         tokens.popleft() # eat '<'
         vec_type = tokens[0]
-        self.generate_definition(vec_type.string)
+        name = self.generate_definition(vec_type.string)
+        tokens.popleft() # eat '>'
+        if token.string != ">":
+            log_error(token, "Expected '>' in ector declaration")
+
+
         return
 
     def generate_definition(self, vec_type: str) -> str:
@@ -87,8 +92,27 @@ class Vector:
         output += tab + "vec->cur_size++;\n"
         output += "}\n"
 
+        #  inline 'Type'* vector_'Type'_at(vector_'Type' Vec, int Pos) {
+        #      return &Vec.Items[Pos]
+        #  }
+        output += "static inline " + vec_type + " vector_" + vec_type +"_at(vector_" +vec_type + " *vec, int pos) {\n"
+        output += tab + "return &vec.items[pos];\n"
+        output += "}\n"
+        
+        # static inline void vector_'Type'_free(vector_'Type' *Vec) {
+        #      free(Vec->Items);
+        #      Vec->Items = 0;
+        #      Vec->CurSize = 0;
+        #      Vec->TotSize = 0;
+        # }
+        output += "static inline void vector_" + vec_type + "_free(vector_" + vec_type + " *vec) {\n"
+        output += tab + "free(vec->items);\n"
+        output += tab + "vec->items = 0;\n"
+        output += tab + "vec->cur_size = 0;\n"
+        output += tab + "vec->tot_size = 0;\n"
+        output += "}\n"
+
         output += "#endif // VECTOR_" + vec_type + "_\n"
 
         self.output.vector_out = output
-
         return name
