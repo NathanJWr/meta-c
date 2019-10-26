@@ -1,6 +1,6 @@
 from logging import log_error
 from output import Output
-from token import Token, Tok
+from c_token import CToken, Tok
 
 from collections import deque
 from typing import Dict, List
@@ -31,6 +31,7 @@ def get_func_args(tokens: deque) -> List:
             token = tokens[0]
         args.append(get_func_arg(tokens))
         token = tokens[0]
+    print(args)
     return args
 
 class Vector:
@@ -43,7 +44,7 @@ class Vector:
 
     def parse(self, tokens: deque) -> None:
         normal_out: str = self.output.normal_out
-        token: Token
+        token: CToken
         var_name: str = ""
         vec_name: str = ""
         vec_type: str = ""
@@ -51,7 +52,8 @@ class Vector:
         tokens.popleft() # eat 'vector'
         token = tokens[0]
         if token.string == "_":
-            return self.parse_function(tokens)
+            self.parse_function(tokens)
+            return
         if token.string != "<":
             log_error(token, "Expected '<' in vector declaration")
         tokens.popleft() # eat '<'
@@ -60,6 +62,7 @@ class Vector:
         vec_name = self.generate_definition(vec_type)
 
         tokens.popleft() # eat '>'
+        token = tokens[0]
         if token.string != ">":
             log_error(token, "Expected '>' in vector declaration")
 
@@ -88,6 +91,15 @@ class Vector:
         self.output.normal_out = normal_out
         return
 
+    def get_var_type(self, var_name: str, token: CToken) -> str:
+        var_type = ""
+        if var_name in self.variables:
+            var_type = self.variables[var_name]
+        else: 
+            log_error(token, "Variable '" + var_name + "' does not exist.")
+        return var_type
+
+
     def parse_function(self, tokens: deque) -> None:
         normal_out = self.output.normal_out
         tokens.popleft() # "eat '_'
@@ -101,17 +113,50 @@ class Vector:
                 log_error(tokens[0], "Invalid number of arguments in call to 'vector_push'")
 
             var_name = args[0] # expect first arg to be name
+            var_type = self.get_var_type(var_name, tokens[0])
 
-            if var_name in self.variables:
-                var_type = self.variables[var_name]
-            else: 
-                log_error(tokens[0], "Variable '" + var_name + "' does not exist.")
-                return
 
             normal_out += "vector_" + var_type + "_push"
             normal_out += "(&" + var_name + ", " + args[1]
-        else:
+        if token.string == "at":
             tokens.popleft()
+            tokens.popleft()
+            args = get_func_args(tokens)
+            if len(args) != 2:
+                log_error(tokens[0], "Invalid number of arguments in call to 'vector_at'")
+            var_name = args[0]
+            var_type = self.get_var_type(var_name, tokens[0])
+            normal_out += "*vector_" + var_type
+            normal_out += "_at(" + var_name + ", " + args[1]
+        if token.string == "front":
+            tokens.popleft() # Eat 'front'
+            tokens.popleft() # Eat '('
+            args = get_func_args(tokens)
+            if len(args) != 1:
+                log_error(tokens[0], "Invalid number of arguments in call to 'vector_front'")
+            var_name = args[0]
+            var_type = self.get_var_type(var_name, tokens[0])
+            normal_out += "*vector_" + var_type + "_front(" + var_name
+        if token.string == "insert":
+            tokens.popleft() # Eat 'insert'
+            tokens.popleft() # Eat '('
+            args = get_func_args(tokens)
+            if len(args) != 3:
+                log_error(tokens[0], "Invalid number of arguments in call to 'vector_insert'")
+            var_name = args[0]
+            var_type = self.get_var_type(var_name, tokens[0])
+            normal_out += "vector_" + var_type + "_insert(&"
+            normal_out += args[0] + ", " + args[1] + ", " + args[2]
+        if token.string == "free":
+            tokens.popleft() # Eat 'free'
+            tokens.popleft() # Eat '('
+            args = get_func_args(tokens)
+            if len(args) != 1:
+                log_error(tokens[0], "Invalid number of arguments in call to 'vector_free'")
+            var_name = args[0]
+            var_type = self.get_var_type(var_name, tokens[0])
+            normal_out += "vector_" + var_type + "_free"
+            normal_out += "(&" + var_name
 
         token = tokens[0]
         while token.val != Tok.semicolon:

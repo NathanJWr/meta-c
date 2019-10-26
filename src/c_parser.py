@@ -1,6 +1,6 @@
 from vector import Vector
 from output import Output
-from token import Token, Tok
+from c_token import CToken, Tok
 
 from collections import deque
 
@@ -10,12 +10,12 @@ def parse(output: Output, tokens: deque) -> None:
     while tokens:
         token = tokens[0]
         if token.val == Tok.typedef:
-            print("Parsing typedef")
             parse_typedef(output, tokens)
         elif token.val == Tok.vector:
             vector.parse(tokens)
         else:
-            tokens.popleft()
+            token = tokens.popleft()
+            output.normal_out += token.string
     return
 
 def parse_typedef(output: Output, tokens: deque) -> None:
@@ -35,6 +35,4 @@ def parse_typedef(output: Output, tokens: deque) -> None:
 
         tokens.popleft() # eat newline
         output.global_out += "\n"
-
-    print(output.global_out)
     return

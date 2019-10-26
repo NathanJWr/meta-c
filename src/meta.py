@@ -1,16 +1,14 @@
-from token import Token, Tok
+from c_token import CToken, Tok
 from c_parser import parse
 from output import Output
-from tokenizer import nexttok
+from c_tokenizer import nexttok
 
 from collections import deque
-from typing import Union
-from typing import Tuple
 from typing import Deque
 
 
 cur_file = open("test.c", 'r')
-token_list: Deque[Token] = deque()
+token_list: Deque[CToken] = deque()
 nexttok(cur_file)
 
 while (1):
@@ -21,5 +19,5 @@ while (1):
 
 output = Output()
 parse(output, token_list)
-
 print(output.normal_out)
+

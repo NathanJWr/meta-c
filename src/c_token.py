@@ -10,7 +10,7 @@ class Tok(Enum):
     end_bracket = -8
     semicolon = -9
 
-class Token:
+class CToken:
     def __init__(self, token, string, line_num):
         self.val = token
         self.string = string
