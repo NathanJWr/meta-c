@@ -31,7 +31,6 @@ def get_func_args(tokens: deque) -> List:
             token = tokens[0]
         args.append(get_func_arg(tokens))
         token = tokens[0]
-    print(args)
     return args
 
 class Vector:
@@ -83,10 +82,13 @@ class Vector:
         while token.val != Tok.semicolon:
             token = tokens.popleft()
         tokens.popleft()
+        tokens.popleft()
         
         # vector_'type' name;
         normal_out += vec_name + " " + var_name + ";\n"
         # insert call to vector_'type'_init
+        for i in range(token.num_tabs):
+            normal_out += "    "
         normal_out += "vector_" + vec_type + "_init(&" + var_name + ");\n"
         self.output.normal_out = normal_out
         return
@@ -163,7 +165,8 @@ class Vector:
             normal_out += token.string
             tokens.popleft()
             token = tokens[0]
-        normal_out += ";\n"
+        normal_out += ";"
+        tokens.popleft()
         self.output.normal_out = normal_out
 
 

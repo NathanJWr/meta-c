@@ -30,7 +30,6 @@ int main() {
         printf("%d\n", vector_at(test, i));
     }
     vector_push(test2, 10);
-
     vector_free(this_var);
     vector_free(test);
     vector_free(test2);

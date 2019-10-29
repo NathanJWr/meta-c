@@ -1,59 +1,66 @@
 from c_token import CToken, Tok
-last_char: str = ' '
-current_line = 1
-num_tabs = 0
-cur_tok: CToken
-
-def nexttok(cur_file) -> CToken:
-    global cur_tok
-    cur_tok = gettok(cur_file)
-    return cur_tok
-
-def gettok(cur_file) -> CToken:
-    global last_char, current_line, num_tabs 
-    this_char: str
-
-    identifier_string = ""
-    if last_char == "\n":
-        current_line += 1
-
-    elif last_char == "{":
-        num_tabs += 1
-
-    elif last_char == "}":
-        num_tabs -= 1
-        identifier_string = last_char
-        last_char = cur_file.read(1)
-        return CToken(Tok.end_bracket, "}", current_line)
-
-    elif last_char == ";":
-        identifier_string = last_char
-        last_char = cur_file.read(1)
-        return CToken(Tok.semicolon, identifier_string, current_line)
-
-    elif last_char.isalpha():
-        while last_char.isalnum():
-            identifier_string += last_char
-            last_char = cur_file.read(1)
-        if identifier_string == "vector":
-            return CToken(Tok.vector, identifier_string, current_line)
-        elif identifier_string == "typedef":
-            return CToken(Tok.typedef, identifier_string, current_line)
-        else:
-            return CToken(Tok.identifier, identifier_string, current_line)
-
-    elif last_char.isdigit():
-        while last_char.isdigit() or last_char == ".":
-            identifier_string += last_char
-            last_char = cur_file.read(1)
-        return CToken(Tok.constant, identifier_string, current_line)
 
 
-    elif not last_char:
-        return CToken(Tok.eof, "", current_line)
+class Tokenizer:
+    last_char: str
+    current_line: int
+    num_tabs: int
+    cur_tok: CToken
 
-    identifier_string = last_char
-    last_char = cur_file.read(1)
-    return CToken(Tok.char, identifier_string, current_line)
-    
+    def __init__(self):
+        self.last_char = " "
+        self.current_line = 1
+        self.num_tabs = 0
+        
+
+    def nexttok(self, cur_file) -> CToken:
+        global cur_tok
+        cur_tok = self.gettok(cur_file)
+        return cur_tok
+
+    def gettok(self, cur_file) -> CToken:
+        this_char: str
+
+        identifier_string = ""
+        if self.last_char == "\n":
+            self.current_line += 1
+
+        elif self.last_char == "{":
+            self.num_tabs += 1
+
+        elif self.last_char == "}":
+            self.num_tabs -= 1
+            identifier_string = self.last_char
+            self.last_char = cur_file.read(1)
+            return CToken(Tok.end_bracket, "}", self.current_line, self.num_tabs)
+
+        elif self.last_char == ";":
+            identifier_string = self.last_char
+            self.last_char = cur_file.read(1)
+            return CToken(Tok.semicolon, identifier_string, self.current_line, self.num_tabs)
+
+        elif self.last_char.isalpha():
+            while self.last_char.isalnum():
+                identifier_string += self.last_char
+                self.last_char = cur_file.read(1)
+            if identifier_string == "vector":
+                return CToken(Tok.vector, identifier_string, self.current_line, self.num_tabs)
+            elif identifier_string == "typedef":
+                return CToken(Tok.typedef, identifier_string, self.current_line, self.num_tabs)
+            else:
+                return CToken(Tok.identifier, identifier_string, self.current_line, self.num_tabs)
+
+        elif self.last_char.isdigit():
+            while self.last_char.isdigit() or self.last_char == ".":
+                identifier_string += self.last_char
+                self.last_char = cur_file.read(1)
+            return CToken(Tok.constant, identifier_string, self.current_line, self.num_tabs)
+
+        elif not self.last_char:
+            return CToken(Tok.eof, "", self.current_line, self.num_tabs)
+
+        identifier_string = self.last_char
+        self.last_char = cur_file.read(1)
+        return CToken(Tok.char, identifier_string, self.current_line, self.num_tabs)
+        
 
