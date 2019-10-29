@@ -14,9 +14,8 @@ class Tokenizer:
         
 
     def nexttok(self, cur_file) -> CToken:
-        global cur_tok
-        cur_tok = self.gettok(cur_file)
-        return cur_tok
+        self.cur_tok = self.gettok(cur_file)
+        return self.cur_tok
 
     def gettok(self, cur_file) -> CToken:
         this_char: str
