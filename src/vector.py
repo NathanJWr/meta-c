@@ -98,7 +98,7 @@ class Vector:
             tokens.popleft()
             normal_out = self.output.normal_out
             normal_out += "*vector_" + self.get_var_type(var_name, tokens[0])
-            normal_out += "_at(" + var_name + ", "
+            normal_out += "_at(&" + var_name + ", "
 
             token = tokens[0]
             if token.val == Tok.constant or token.val == Tok.identifier or token.val == Tok.char:
@@ -149,7 +149,7 @@ class Vector:
             var_name = args[0]
             var_type = self.get_var_type(var_name, tokens[0])
             normal_out += "*vector_" + var_type
-            normal_out += "_at(" + var_name + ", " + args[1]
+            normal_out += "_at(&" + var_name + ", " + args[1]
         if token.string == "front":
             tokens.popleft() # Eat 'front'
             tokens.popleft() # Eat '('
@@ -207,10 +207,10 @@ class Vector:
         #     int CurSize;
         # } vector_Type;
         output += "typedef struct {\n"
-        output += tab + "Type* items;\n"
-        output += tab + "int tot_size\n"
-        output += tab + "int cur_size\n"
-        output += "} vector_" + vec_type + "\n"
+        output += tab + vec_type + "* items;\n"
+        output += tab + "int tot_size;\n"
+        output += tab + "int cur_size;\n"
+        output += "} vector_" + vec_type + ";\n"
 
 
         # void Vector_'Type'_init(Vector_'Type' *Vec) {
@@ -263,8 +263,8 @@ class Vector:
         #  inline 'Type'* vector_'Type'_at(vector_'Type' Vec, int Pos) {
         #      return &Vec.Items[Pos]
         #  }
-        output += "static inline " + vec_type + " vector_" + vec_type +"_at(vector_" +vec_type + " *vec, int pos) {\n"
-        output += tab + "return &vec.items[pos];\n"
+        output += "static inline " + vec_type + "* vector_" + vec_type +"_at(vector_" +vec_type + " *vec, int pos) {\n"
+        output += tab + "return &vec->items[pos];\n"
         output += "}\n"
         
         # static inline void vector_'Type'_free(vector_'Type' *Vec) {

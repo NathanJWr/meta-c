@@ -9,7 +9,7 @@ include_list: List[str] = []
 def generate_include(output: Output, name: str) -> None:
     global include_list
     if not name in include_list:
-        output.global_out += "#include \"" + name + ".h\"\n"
+        output.global_out += "#include \"__" + name + ".h\"\n"
         include_list.append(name)
     return
 
