@@ -43,7 +43,7 @@ while source_file_count < len(file_list):
             break
 
     output = Output()
-    parse(output, token_list)
+    parse(output, token_list, source_file_count)
 
     # output to files
     output_to_file(output, cur_file)
