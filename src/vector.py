@@ -92,6 +92,26 @@ class Vector:
         normal_out += "vector_" + vec_type + "_init(&" + var_name + ");\n"
         self.output.normal_out = normal_out
         return
+    def parse_variable(self, tokens: deque) -> None:
+        var_name = tokens.popleft().string
+        if tokens[0].string == "[":
+            tokens.popleft()
+            normal_out = self.output.normal_out
+            normal_out += "*vector_" + self.get_var_type(var_name, tokens[0])
+            normal_out += "_at(" + var_name + ", "
+
+            token = tokens[0]
+            if token.val == Tok.constant or token.val == Tok.identifier or token.val == Tok.char:
+                normal_out += token.string
+            else:
+                log_error(token, "Expected a number or variable after '['")
+            tokens.popleft()
+            tokens.popleft()
+
+            normal_out += ")"
+            self.output.normal_out = normal_out
+
+        return
 
     def get_var_type(self, var_name: str, token: CToken) -> str:
         var_type = ""

@@ -9,8 +9,9 @@ from typing import Deque, TextIO
 
 
 
-file_list = ["test.c", "test2.c"]
+file_list = ["test.c", "test2.c", "test3.c"]
 source_file_count = 0
+
 
 def output_to_file(output: Output, cur_file: TextIO) -> None:
     global source_file_count

@@ -3,8 +3,7 @@ from output import Output
 from c_token import CToken, Tok
 
 from collections import deque
-
-
+    
 def parse(output: Output, tokens: deque) -> None:
     vector = Vector(output)
     while tokens:
@@ -13,6 +12,12 @@ def parse(output: Output, tokens: deque) -> None:
             parse_typedef(output, tokens)
         elif token.val == Tok.vector:
             vector.parse(tokens)
+        elif token.val == Tok.identifier:
+            if not token.string in vector.variables:
+                output.normal_out += token.string
+                tokens.popleft()
+            else:
+                vector.parse_variable(tokens)
         else:
             token = tokens.popleft()
             output.normal_out += token.string
