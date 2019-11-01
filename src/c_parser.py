@@ -13,6 +13,15 @@ def generate_include(output: Output, name: str) -> None:
         include_list.append(name)
     return
 
+def get_whole_name(tokens: deque) -> str:
+    name = ""
+    token = tokens[0]
+    while token.val != Tok.semicolon and token.string != ")" and token.string != " " and token.string != "(":
+        name += token.string
+        tokens.popleft()
+        token = tokens[0]
+    return name
+
 def parse(output: Output, tokens: deque, source_file: int) -> None:
     vector = Vector(output)
     while tokens:
@@ -23,14 +32,24 @@ def parse(output: Output, tokens: deque, source_file: int) -> None:
             generate_include(output, "vector" + str(source_file))
             vector.parse(tokens)
         elif token.val == Tok.identifier:
-            if not token.string in vector.variables:
-                output.normal_out += token.string
+            string = ""
+            # # TODO: This is really crazy. Fix later
+            if tokens[1].string == "_":
+                string = get_whole_name(tokens)
+                output.normal_out += string
+                output.normal_out += tokens[0].string
+                tokens.popleft()
+                continue
+            else:
+                string = token.string
+            if not string in vector.variables:
+                output.normal_out += string
                 tokens.popleft()
             else:
                 vector.parse_variable(tokens)
         else:
-            token = tokens.popleft()
             output.normal_out += token.string
+            tokens.popleft()
     return
 
 def parse_typedef(output: Output, tokens: deque) -> None:

@@ -36,6 +36,7 @@ def get_func_args(tokens: deque) -> List:
 class Vector:
     output: Output
     variables: Dict[str, str] = dict()
+    init_list: List[str] = []
 
     # should be given output.vector_out
     def __init__(self, output: Output):
@@ -61,6 +62,7 @@ class Vector:
 
         vec_type = tokens[0].string
         vec_name = self.generate_definition(vec_type)
+        print(vec_name)
 
         tokens.popleft() # eat '>'
         token = tokens[0]
@@ -75,23 +77,25 @@ class Vector:
             token = tokens[0]
 
         # get whole var name
-        while token.val != Tok.semicolon:
+        while token.val != Tok.semicolon and token.string != ")":
             var_name += token.string
             tokens.popleft()
             token = tokens[0]
+
         self.variables[var_name] = vec_type
 
-        while token.val != Tok.semicolon:
+        while (token.val != Tok.semicolon) and (token.string != ")"):
             token = tokens.popleft()
-        tokens.popleft()
-        tokens.popleft()
-        
-        # vector_'type' name;
-        normal_out += vec_name + " " + var_name + ";\n"
-        # insert call to vector_'type'_init
-        for i in range(token.num_tabs):
-            normal_out += "    "
-        normal_out += "vector_" + vec_type + "_init(&" + var_name + ");\n"
+
+        if (token.val == Tok.semicolon):
+            tokens.popleft()
+            tokens.popleft()
+            # vector_'type' name;
+            normal_out += vec_name + " " + var_name + ";\n"
+        elif (token.string == ")"):
+            normal_out += vec_name + " " + var_name
+
+
         self.output.normal_out = normal_out
         return
     def parse_variable(self, tokens: deque) -> None:
@@ -112,6 +116,8 @@ class Vector:
 
             normal_out += ")"
             self.output.normal_out = normal_out
+        else:
+            self.output.normal_out += var_name
 
         return
 
@@ -124,11 +130,18 @@ class Vector:
         return var_type
 
 
+    def init_var(self, token, vec_type, var_name) -> None:
+        # insert call to vector_'type'_init
+        for i in range(token.num_tabs):
+            normal_out += "    "
+        normal_out += "vector_" + vec_type + "_init(&" + var_name + ");\n"
+
     def parse_function(self, tokens: deque) -> None:
         normal_out = self.output.normal_out
         tokens.popleft() # "eat '_'
         token = tokens[0]
         var_type = ""
+
         if token.string == "push":
             tokens.popleft() # "eat 'push'
             tokens.popleft() # "eat '('
@@ -138,7 +151,6 @@ class Vector:
 
             var_name = args[0] # expect first arg to be name
             var_type = self.get_var_type(var_name, tokens[0])
-
 
             normal_out += "vector_" + var_type + "_push"
             normal_out += "(&" + var_name + ", " + args[1]

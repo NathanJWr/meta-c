@@ -1,6 +1,5 @@
 from c_token import CToken, Tok
 
-
 class Tokenizer:
     last_char: str
     current_line: int
