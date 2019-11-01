@@ -40,6 +40,8 @@ class Vector:
     # should be given output.vector_out
     def __init__(self, output: Output):
         self.output = output
+        # need the standard lib for malloc/realloc
+        output.vector_out += "#include <stdlib.h>\n"
 
     def parse(self, tokens: deque) -> None:
         normal_out: str = self.output.normal_out
@@ -98,7 +100,7 @@ class Vector:
             tokens.popleft()
             normal_out = self.output.normal_out
             normal_out += "*vector_" + self.get_var_type(var_name, tokens[0])
-            normal_out += "_at(&" + var_name + ", "
+            normal_out += "_at(" + var_name + ", "
 
             token = tokens[0]
             if token.val == Tok.constant or token.val == Tok.identifier or token.val == Tok.char:
@@ -149,7 +151,7 @@ class Vector:
             var_name = args[0]
             var_type = self.get_var_type(var_name, tokens[0])
             normal_out += "*vector_" + var_type
-            normal_out += "_at(&" + var_name + ", " + args[1]
+            normal_out += "_at(" + var_name + ", " + args[1]
         if token.string == "front":
             tokens.popleft() # Eat 'front'
             tokens.popleft() # Eat '('
@@ -219,7 +221,9 @@ class Vector:
         #      Vec->CurSize = 0;
         # }
         output += "void " + name + "_init(" + name + " *vec) {\n"
-        output += tab + "vec->items = malloc(100 * sizeof(" + vec_type + "));\n"
+        output += tab + "vec->items = "
+        output += "(" + vec_type + " *) "
+        output +="malloc(100 * sizeof(" + vec_type + "));\n"
         output += tab + "vec->tot_size = 100;\n"
         output += tab + "vec->cur_size = 0;\n"
         output += "}\n"
@@ -230,7 +234,8 @@ class Vector:
         # }
         output += "void vector_" + vec_type + "_expand(vector_" + vec_type + " *vec) {\n"
         output += tab + "vec->tot_size = vec->tot_size * 2;\n"
-        output += tab + "vec->items = realloc(vec->items, sizeof(" + vec_type + ") * vec->tot_size);\n"
+        output += tab + "vec->items = (" + vec_type + " *) "
+        output += "realloc(vec->items, sizeof(" + vec_type + ") * vec->tot_size);\n"
         output += "}\n"
 
         # void Vector_'Type'_push(Vector_'Type' *Vec, 'Type' Item) {
@@ -263,9 +268,18 @@ class Vector:
         #  inline 'Type'* vector_'Type'_at(vector_'Type' Vec, int Pos) {
         #      return &Vec.Items[Pos]
         #  }
-        output += "static inline " + vec_type + "* vector_" + vec_type +"_at(vector_" +vec_type + " *vec, int pos) {\n"
-        output += tab + "return &vec->items[pos];\n"
+        output += "static inline " + vec_type + "* vector_" + vec_type +"_at(vector_" +vec_type + " vec, int pos) {\n"
+        output += tab + "return &vec.items[pos];\n"
         output += "}\n"
+
+        # inline 'Type'* vector_'Type'_front(vector_'Type' vec) {
+        #       return &vec->items[0]
+        # }
+        output += "static inline " + vec_type + "* vector_" + vec_type
+        output += "_front(vector_" + vec_type + " vec) {\n"
+        output += tab + "return &vec.items[0];\n"
+        output += "}\n"
+
         
         # static inline void vector_'Type'_free(vector_'Type' *Vec) {
         #      free(Vec->Items);
