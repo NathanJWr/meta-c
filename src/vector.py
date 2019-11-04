@@ -82,6 +82,7 @@ class Vector:
             tokens.popleft()
             token = tokens[0]
 
+        # The variable should be discarded when leaving a function
         self.variables[var_name] = vec_type
 
         while (token.val != Tok.semicolon) and (token.string != ")"):
@@ -132,9 +133,11 @@ class Vector:
 
     def init_var(self, token, vec_type, var_name) -> None:
         # insert call to vector_'type'_init
+        normal_out = self.output.normal_out
         for i in range(token.num_tabs):
             normal_out += "    "
         normal_out += "vector_" + vec_type + "_init(&" + var_name + ");\n"
+        self.output.normal_out = normal_out
 
     def parse_function(self, tokens: deque) -> None:
         normal_out = self.output.normal_out
