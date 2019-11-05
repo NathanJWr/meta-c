@@ -44,7 +44,13 @@ class Vector:
         # need the standard lib for malloc/realloc
         output.vector_out += "#include <stdlib.h>\n"
 
-    def parse(self, tokens: deque) -> None:
+    def purge_variables(self, variables: List[str]) -> None:
+        for var in variables:
+            if var in self.variables:
+                del self.variables[var]
+
+
+    def parse(self, tokens: deque) -> str:
         normal_out: str = self.output.normal_out
         token: CToken
         var_name: str = ""
@@ -98,7 +104,7 @@ class Vector:
 
 
         self.output.normal_out = normal_out
-        return
+        return var_name
     def parse_variable(self, tokens: deque) -> None:
         var_name = tokens.popleft().string
         if tokens[0].string == "[":
