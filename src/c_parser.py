@@ -20,7 +20,8 @@ def get_whole_name(tokens: deque) -> str:
         and token.string != ")" 
         and token.string != " "
         and token.string != "(" 
-        and token.string != ">"):
+        and token.string != ">"
+        and token.string != "["):
         name += token.string
         tokens.popleft()
         token = tokens[0]
@@ -65,7 +66,7 @@ class CParser:
                 if not string in vector.variables:
                     output.normal_out += string
                 else:
-                    vector.parse_variable(tokens)
+                    vector.parse_variable(tokens, string)
             else:
                 output.normal_out += token.string
                 tokens.popleft()
@@ -108,7 +109,7 @@ class CParser:
                 elif not string in vector.variables:
                     output.normal_out += string
                 else:
-                    vector.parse_variable(tokens)
+                    vector.parse_variable(tokens, string)
             else:
                 output.normal_out += token.string
                 tokens.popleft()

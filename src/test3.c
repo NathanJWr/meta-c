@@ -4,13 +4,14 @@ typedef struct {
 } something;
 something*** print_vec(vector<int> vec) {
     for (int i = 0; i < 1000; i++) {
-        printf("%d ", test[i]);
+        printf("%d ", vec[i]);
     }
 }
 int main() {
     vector<int> test;
+    vector_init(test);
     for (int i = 0; i < 1000; i++) {
         vector_push(test, i);
     }
-    print_vec(test)
+    print_vec(test);
 }

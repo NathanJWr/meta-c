@@ -105,8 +105,7 @@ class Vector:
 
         self.output.normal_out = normal_out
         return var_name
-    def parse_variable(self, tokens: deque) -> None:
-        var_name = tokens.popleft().string
+    def parse_variable(self, tokens: deque, var_name: str) -> None:
         if tokens[0].string == "[":
             tokens.popleft()
             normal_out = self.output.normal_out
@@ -202,6 +201,18 @@ class Vector:
             var_type = self.get_var_type(var_name, tokens[0])
             normal_out += "vector_" + var_type + "_free"
             normal_out += "(&" + var_name
+        if token.string == "init":
+            tokens.popleft() # Eat 'init'
+            tokens.popleft() # Eat '('
+            args = get_func_args(tokens)
+            if len(args) != 1:
+                log_error(tokens[0], "Invalid number of arguments in call to 'vector_init'")
+            var_name = args[0]
+            var_type = self.get_var_type(var_name, tokens[0])
+            normal_out += "vector_" + var_type + "_init"
+            normal_out += "(&" + var_name
+
+
 
         token = tokens[0]
         while token.val != Tok.semicolon:
