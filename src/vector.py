@@ -135,15 +135,6 @@ class Vector:
             log_error(token, "Variable '" + var_name + "' does not exist.")
         return var_type
 
-
-    def init_var(self, token, vec_type, var_name) -> None:
-        # insert call to vector_'type'_init
-        normal_out = self.output.normal_out
-        for i in range(token.num_tabs):
-            normal_out += "    "
-        normal_out += "vector_" + vec_type + "_init(&" + var_name + ");\n"
-        self.output.normal_out = normal_out
-
     def parse_function(self, tokens: deque) -> None:
         normal_out = self.output.normal_out
         tokens.popleft() # "eat '_'
@@ -289,7 +280,7 @@ class Vector:
         #    Vec->Items[Pos] = Item;
         #    Vec->CurSize++;
         # }
-        output += "vector_" + vec_type + "_insert(vector_" + vec_type + " *vec, int pos, " + vec_type + " item) {\n"
+        output += "void vector_" + vec_type + "_insert(vector_" + vec_type + " *vec, int pos, " + vec_type + " item) {\n"
         output += tab + "for (int i = vec->cur_size + 1; i > pos - 1; i--) {\n"
         output += tab + tab + "vec->items[i+1] = vec->items[i];\n"
         output += tab + "}\n"
