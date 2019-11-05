@@ -126,6 +126,7 @@ class CParser:
             name = get_whole_name(tokens)
             print("Typedef: " + name)
             self.function_types.append(name)
+            output.global_out += " " + name
 
             while token.val != Tok.semicolon:
                 token = tokens.popleft()
