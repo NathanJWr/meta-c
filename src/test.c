@@ -8,18 +8,23 @@ typedef struct {
 } Integers;
 int main() {
     vector<Integers> this_var;
+    vector_init(this_var);
     Integers a = {1,2,3};
     vector_push(this_var, a);
     vector_front(this_var);
 
     vector<int> test;
+    vector_init(test);
     vector<char> test2;
+    vector_init(test2);
     if (1) {
         vector<double> test3;
+        vector_init(test3);
         vector_free(test3);
 
         if (1) {
             vector<double> test4;
+            vector_init( test4);
             vector_free(test4);
         }
     }

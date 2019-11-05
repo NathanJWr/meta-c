@@ -6,11 +6,13 @@ from collections import deque
 from typing import List
     
 include_list: List[str] = []
-def generate_include(output: Output, name: str) -> None:
-    global include_list
-    if not name in include_list:
-        output.global_out += "#include \"__" + name + ".h\"\n"
-        include_list.append(name)
+def generate_include(output: Output, definitions: List[str]) -> None:
+    #global include_list
+    #if not name in include_list:
+    #    output.global_out += "#include \"__" + name + ".h\"\n"
+    #    include_list.append(name)
+    for definition in definitions:
+        output.global_out += "#include \"__vector_" + definition + ".h\"\n"
     return
 
 def get_whole_name(tokens: deque) -> str:
@@ -21,7 +23,9 @@ def get_whole_name(tokens: deque) -> str:
         and token.string != " "
         and token.string != "(" 
         and token.string != ">"
-        and token.string != "["):
+        and token.string != "["
+        and token.string != "\n"
+        and token.string != "#"):
         name += token.string
         tokens.popleft()
         token = tokens[0]
@@ -54,11 +58,15 @@ class CParser:
                     nesting += 1
             elif token.string == "}":
                 nesting -= 1
+            if token.val == Tok.semicolon and nesting == -1:
+                # This is just a function statement,
+                # not a definition
+                return
+
 
             if token.val == Tok.typedef:
                 self.parse_typedef(output, tokens)
             elif token.val == Tok.vector:
-                generate_include(output, "vector" + str(source_file))
                 var_name = vector.parse(tokens)
                 local_vars.append(var_name)
             elif token.val == Tok.identifier:
@@ -73,6 +81,7 @@ class CParser:
 
         # get rid of local variables from lists so they don't
         # affect other areas of the source code
+        # generate_include(output, vector.definitions)
         vector.purge_variables(local_vars)
 
     def parse(self,
@@ -113,6 +122,7 @@ class CParser:
             else:
                 output.normal_out += token.string
                 tokens.popleft()
+        generate_include(output, vector.definitions)
         return
 
     def parse_typedef(self, output: Output, tokens: deque) -> None:

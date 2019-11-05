@@ -3,7 +3,7 @@ from output import Output
 from c_token import CToken, Tok
 
 from collections import deque
-from typing import Dict, List
+from typing import Dict, List, Union
 
 def get_func_arg(tokens: deque) -> str:
     arg = ""
@@ -36,13 +36,14 @@ def get_func_args(tokens: deque) -> List:
 class Vector:
     output: Output
     variables: Dict[str, str] = dict()
-    init_list: List[str] = []
+    definitions: List[str] = []
+    function_defs: str
 
     # should be given output.vector_out
     def __init__(self, output: Output):
-        self.output = output
         # need the standard lib for malloc/realloc
-        output.vector_out += "#include <stdlib.h>\n"
+        self.output = output
+        self.function_defs = ""
 
     def purge_variables(self, variables: List[str]) -> None:
         for var in variables:
@@ -54,7 +55,7 @@ class Vector:
         normal_out: str = self.output.normal_out
         token: CToken
         var_name: str = ""
-        vec_name: str = ""
+        vec_name: Union[str, None]
         vec_type: str = ""
 
         tokens.popleft() # eat 'vector'
@@ -68,6 +69,7 @@ class Vector:
 
         vec_type = tokens[0].string
         vec_name = self.generate_definition(vec_type)
+
         print(vec_name)
 
         tokens.popleft() # eat '>'
@@ -215,13 +217,21 @@ class Vector:
         self.output.normal_out = normal_out
 
 
-
+    def write_to_file(self, vec_type) -> None:
+        output_file = open("__vector_" + vec_type + ".h", 'w')
+        output_file.write(self.function_defs)
+        output_file.close()
 
     def generate_definition(self, vec_type: str) -> str:
-        tab = "    "
-        output = self.output.vector_out
         name = "vector_" + vec_type
+        if vec_type in self.definitions:
+            return name
 
+        self.definitions.append(vec_type)
+        tab = "    "
+        output = self.function_defs
+
+        output += "#include <stdlib.h>\n"
         output += "#ifndef VECTOR_" + vec_type + "_\n"
         output += "#define VECTOR_" + vec_type + "_\n"
 
@@ -243,7 +253,7 @@ class Vector:
         #      Vec->TotSize = 100;
         #      Vec->CurSize = 0;
         # }
-        output += "void " + name + "_init(" + name + " *vec) {\n"
+        output += "static void " + name + "_init(" + name + " *vec) {\n"
         output += tab + "vec->items = "
         output += "(" + vec_type + " *) "
         output +="malloc(100 * sizeof(" + vec_type + "));\n"
@@ -255,7 +265,7 @@ class Vector:
         #     Vec->TotSize = Vec->TotSize  * 2;
         #     Vec->Items = realloc(Vec->Items, sizeof('Type') * Vec->TotSize);
         # }
-        output += "void vector_" + vec_type + "_expand(vector_" + vec_type + " *vec) {\n"
+        output += "static void vector_" + vec_type + "_expand(vector_" + vec_type + " *vec) {\n"
         output += tab + "vec->tot_size = vec->tot_size * 2;\n"
         output += tab + "vec->items = (" + vec_type + " *) "
         output += "realloc(vec->items, sizeof(" + vec_type + ") * vec->tot_size);\n"
@@ -266,7 +276,7 @@ class Vector:
         #      }
         #      Vec->Items[Vec->CurSize++] = Item;
         #  }
-        output += "void " + name + "_push(" + name + " *vec, " + vec_type + " item) {\n"
+        output += "static void " + name + "_push(" + name + " *vec, " + vec_type + " item) {\n"
         output += tab + "if (vec->tot_size == vec->cur_size) {\n"
         output += tab + tab + "vector_" + vec_type + "_expand(vec);\n"
         output += tab + "}\n"
@@ -280,7 +290,7 @@ class Vector:
         #    Vec->Items[Pos] = Item;
         #    Vec->CurSize++;
         # }
-        output += "void vector_" + vec_type + "_insert(vector_" + vec_type + " *vec, int pos, " + vec_type + " item) {\n"
+        output += "static void vector_" + vec_type + "_insert(vector_" + vec_type + " *vec, int pos, " + vec_type + " item) {\n"
         output += tab + "for (int i = vec->cur_size + 1; i > pos - 1; i--) {\n"
         output += tab + tab + "vec->items[i+1] = vec->items[i];\n"
         output += tab + "}\n"
@@ -319,5 +329,6 @@ class Vector:
 
         output += "#endif // VECTOR_" + vec_type + "_\n"
 
-        self.output.vector_out = output
+        self.function_defs = output
+        self.write_to_file(vec_type)
         return name
