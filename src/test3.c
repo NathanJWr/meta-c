@@ -1,5 +1,8 @@
 #include <stdio.h>
-int print_vec(vector<int> vec) {
+typedef struct {
+    int a;
+} something;
+something*** print_vec(vector<int> vec) {
     for (int i = 0; i < 1000; i++) {
         printf("%d ", test[i]);
     }

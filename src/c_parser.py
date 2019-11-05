@@ -67,7 +67,7 @@ def parse_function(output: Output,
     vector.purge_variables(local_vars)
 
 
-function_types = ["char", "int", "void"]
+function_types = ["char", "short", "int", "long", "void"]
 def parse(output: Output, tokens: deque, source_file: int) -> None:
     vector = Vector(output)
     while tokens:
@@ -79,7 +79,9 @@ def parse(output: Output, tokens: deque, source_file: int) -> None:
             vector.parse(tokens)
         elif token.val == Tok.identifier:
             string = get_whole_name(tokens)
-            if string in function_types:
+
+            to_compare = string.replace('*', '')
+            if to_compare in function_types:
                 # see if we are parsing a function
                 # or a variable declaration
                 c_type = string
@@ -104,6 +106,7 @@ def parse(output: Output, tokens: deque, source_file: int) -> None:
     return
 
 def parse_typedef(output: Output, tokens: deque) -> None:
+    global function_types
     token = tokens.popleft() # eat 'typedef'
 
     while token.val != Tok.identifier:
@@ -114,6 +117,12 @@ def parse_typedef(output: Output, tokens: deque) -> None:
         while token.val != Tok.end_bracket:
             token = tokens.popleft()
             output.global_out += token.string
+
+        eat_white_space(tokens)
+        name = get_whole_name(tokens)
+        print("Typedef: " + name)
+        function_types.append(name)
+
         while token.val != Tok.semicolon:
             token = tokens.popleft()
             output.global_out += token.string
