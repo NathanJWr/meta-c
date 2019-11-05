@@ -1,5 +1,5 @@
 from c_token import CToken, Tok
-from c_parser import parse
+from c_parser import CParser
 from output import Output
 from c_tokenizer import Tokenizer
 
@@ -39,7 +39,8 @@ while source_file_count < len(file_list):
             break
 
     output = Output()
-    parse(output, token_list, source_file_count)
+    parser = CParser()
+    parser.parse(output, token_list, source_file_count)
 
     # output to files
     output_to_file(output, cur_file)
