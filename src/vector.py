@@ -61,7 +61,7 @@ class Vector:
         token = tokens[0]
         if token.string == "_":
             self.parse_function(tokens)
-            return
+            return var_name
         if token.string != "<":
             log_error(token, "Expected '<' in vector declaration")
         tokens.popleft() # eat '<'

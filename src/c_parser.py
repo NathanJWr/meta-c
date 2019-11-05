@@ -16,7 +16,11 @@ def generate_include(output: Output, name: str) -> None:
 def get_whole_name(tokens: deque) -> str:
     name = ""
     token = tokens[0]
-    while token.val != Tok.semicolon and token.string != ")" and token.string != " " and token.string != "(" and token.string != ">":
+    while (token.val != Tok.semicolon 
+        and token.string != ")" 
+        and token.string != " "
+        and token.string != "(" 
+        and token.string != ">"):
         name += token.string
         tokens.popleft()
         token = tokens[0]
