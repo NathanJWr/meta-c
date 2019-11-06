@@ -3,35 +3,8 @@ from output import Output
 from c_token import CToken, Tok
 
 from collections import deque
-from typing import Dict, List, Union
-
-def get_func_arg(tokens: deque) -> str:
-    arg = ""
-    while 1:
-        token = tokens[0]
-        if token.string == ",":
-            return arg
-        elif token.string.isspace():
-            return arg
-        elif token.string == ")":
-            return arg
-        elif token.val == Tok.identifier:
-            arg += token.string
-        else:
-            arg += token.string
-        tokens.popleft()
-
-
-def get_func_args(tokens: deque) -> List:
-    token = tokens[0]
-    args = []
-    while token.string != ")":
-        while token.string == "," or token.string.isspace():
-            tokens.popleft()
-            token = tokens[0]
-        args.append(get_func_arg(tokens))
-        token = tokens[0]
-    return args
+from typing import Dict, List
+from c_parser_utils import get_func_args
 
 class Vector:
     output: Output
@@ -71,8 +44,6 @@ class Vector:
 
         vec_type = tokens[0].string
         vec_name = self.generate_definition(vec_type)
-
-        print(vec_name)
 
         tokens.popleft() # eat '>'
         token = tokens[0]

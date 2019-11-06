@@ -1,6 +1,7 @@
 from vector import Vector
 from output import Output
 from c_token import CToken, Tok
+from c_parser_utils import get_whole_name, eat_white_space
 
 from collections import deque
 from typing import List
@@ -14,29 +15,6 @@ def generate_include(output: Output, definitions: List[str]) -> None:
     for definition in definitions:
         output.global_out += "#include \"__vector_" + definition + ".h\"\n"
     return
-
-def get_whole_name(tokens: deque) -> str:
-    name = ""
-    token = tokens[0]
-    while (token.val != Tok.semicolon 
-        and token.val != Tok.left_paren
-        and token.val != Tok.right_paren
-        and token.val != Tok.space
-        and token.val != Tok.greater_than
-        and token.val != Tok.less_than
-        and token.val != Tok.left_bracket
-        and token.val != Tok.right_bracket
-        and token.val != Tok.pound
-        and token.val != Tok.newline):
-
-        name += token.string
-        tokens.popleft()
-        token = tokens[0]
-    return name
-
-def eat_white_space(tokens: deque) -> None:
-    while tokens[0].string.isspace():
-        tokens.popleft()
 
 class CParser:
     function_types = ["char", "short", "int", "long", "void"]
@@ -110,7 +88,7 @@ class CParser:
                     eat_white_space(tokens)
                     name = get_whole_name(tokens)
                     eat_white_space(tokens)
-                    if tokens[0].string == "(":
+                    if tokens[0].val == Tok.left_paren:
                         self.parse_function(output,
                                             tokens,
                                             source_file,
