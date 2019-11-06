@@ -43,6 +43,8 @@ class Vector:
     def __init__(self, output: Output):
         # need the standard lib for malloc/realloc
         self.output = output
+        self.definitions.clear()
+        self.variables.clear()
         self.function_defs = ""
 
     def purge_variables(self, variables: List[str]) -> None:
