@@ -3,6 +3,7 @@ class Tok(Enum):
     eof = auto()
     identifier = auto()
     vector = auto()
+    c_list = auto()
     template = auto()
     typedef = auto()
     struct = auto()

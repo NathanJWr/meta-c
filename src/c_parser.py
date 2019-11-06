@@ -2,6 +2,7 @@ from vector import Vector
 from output import Output
 from c_token import CToken, Tok
 from c_parser_utils import get_whole_name, eat_white_space
+from c_list import CList
 
 from collections import deque
 from typing import List
@@ -25,7 +26,8 @@ class CParser:
                        source_file: int,
                        name: str,
                        c_type: str,
-                       vector: Vector) -> None:
+                       vector: Vector,
+                       c_list: CList) -> None:
         print("Parsing " + name)
         local_vars: List[str] = []
         output.normal_out += c_type + " " + name
@@ -50,6 +52,9 @@ class CParser:
             elif token.val == Tok.vector:
                 var_name = vector.parse(tokens)
                 local_vars.append(var_name)
+            elif token.val == Tok.c_list:
+                var_name = c_list.parse(tokens)
+                local_vars.append(var_name)
             elif token.val == Tok.identifier:
                 string = get_whole_name(tokens)
                 if not string in vector.variables:
@@ -70,13 +75,16 @@ class CParser:
               tokens: deque,
               source_file: int) -> None:
         vector = Vector(output)
+        c_list = CList(output)
         while tokens:
             token = tokens[0]
             if token.val == Tok.typedef:
                 self.parse_typedef(output, tokens)
             elif token.val == Tok.vector:
-                generate_include(output, "vector" + str(source_file))
                 vector.parse(tokens)
+            elif token.val == Tok.c_list:
+                c_list.parse(tokens)
+
             elif token.val == Tok.identifier:
                 string = get_whole_name(tokens)
 
@@ -94,7 +102,8 @@ class CParser:
                                             source_file,
                                             name,
                                             c_type,
-                                            vector)
+                                            vector,
+                                            c_list)
 
                 elif not string in vector.variables:
                     output.normal_out += string

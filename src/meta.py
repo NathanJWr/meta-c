@@ -6,7 +6,7 @@ from c_tokenizer import Tokenizer
 from collections import deque
 from typing import Deque, TextIO
 
-file_list = ["test.c", "test2.c", "test3.c", "test4.h", "test4.c"]
+file_list = ["test_list.c"]
 source_file_count = 0
 
 while source_file_count < len(file_list):

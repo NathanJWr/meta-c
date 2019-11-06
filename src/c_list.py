@@ -1,7 +1,7 @@
 from logging import log_error
 from output import Output
 from c_token import CToken, Tok
-from c_parser_utils import get_whole_name
+from c_parser_utils import get_whole_name, get_func_args
 
 from collections import deque
 from typing import Dict, List, Union
@@ -29,7 +29,7 @@ class CList:
                 del self.variables[var]
 
     def parse(self, tokens: deque) -> str:
-        normal_out: str = self.output.normal_out
+        normal_out = self.output.normal_out
         token: CToken
         var_name: str = ""
         list_name: str = ""
@@ -79,6 +79,32 @@ class CList:
         self.output.normal_out = normal_out
         return var_name
 
+    def parse_function(self, tokens: deque) -> None:
+        normal_out = self.output.normal_out
+        tokens.popleft() # "eat '_'
+        token = tokens[0]
+        var_type = ""
+
+        if token.string == "init":
+            tokens.popleft() # eat 'init'
+            tokens.popleft() # eat '('
+            args = get_func_args(tokens)
+            if len(args) != 1:
+                log_error(tokens[0], "Invalid number of arguments in call to 'list_init'")
+            var_name = args[0]
+            var_type = self.get_var_type(var_name, tokens[0])
+            normal_out += "list_" + var_type + "_init"
+            normal_out += "(&" + var_name
+
+        token = tokens[0]
+        while token.val != Tok.semicolon:
+            normal_out += token.string
+            tokens.popleft()
+            token = tokens[0]
+        normal_out += ";"
+        tokens.popleft()
+        self.output.normal_out = normal_out
+
     def get_var_type(self, var_name: str, token: CToken) -> str:
         var_type = ""
         if var_name in self.variables:
@@ -117,18 +143,18 @@ class CList:
         output = self.function_defs
 
         output += "#include <stdlib.h>\n"
-        output += "#ifndef LIST_" + vec_type + "_\n"
-        output += "#define LIST_" + vec_type + "_\n"
+        output += "#ifndef LIST_" + list_type + "_\n"
+        output += "#define LIST_" + list_type + "_\n"
 
         # typedef strcut _Node_type {
-        #     type* item;
+        #     type item;
         #     struct _Node* next
         # } Node_type;
         node_name = "Node_" + list_type
         output += "typedef struct _" + node_name + " {\n"
-        output += tab + list_type + "* item;\n"
+        output += tab + list_type + " item;\n"
         output += tab + "struct _" + node_name + "* next;\n"
-        output += "} " + node_name
+        output += "} " + node_name + ";\n"
 
         # typedef struct {
         #     size_t length;
@@ -140,7 +166,7 @@ class CList:
         output += tab + "size_t length;\n"
         output += tab + node_name + "* head;\n"
         output += tab + node_name + "* tail;\n"
-        output += "} " + list_name
+        output += "} " + list_name + ";\n"
 
         # void list_type_init(list_type* list) {
         #     list->head = NULL;
@@ -148,7 +174,7 @@ class CList:
         #     list->length = 0
         # }
         function_stub = "list_" + list_type
-        output += "void " + function_stub + "_init(" + function_stub + "* list) {\n"
+        output += "static void " + function_stub + "_init(" + function_stub + "* list) {\n"
         output += tab + "list->head = NULL;\n"
         output += tab + "list->tail = NULL;\n"
         output += tab + "list->length = 0;\n"
@@ -156,6 +182,7 @@ class CList:
 
         # void list_type_push(list_type* list, type item) {
         #     node = malloc(sizeof(node));
+        #     node.item = item;
         #     if (!list->head) {
         #         list->head = node;
         #         list->tail = node;
@@ -166,4 +193,21 @@ class CList:
         #     list->head = node;
         #     list->length++;
         # }
+        output += "static void " + function_stub + "_push(" + function_stub + "* list, " + list_type + " item) {\n"
+        output += tab + node_name + " node = malloc(sizeof(" + node_name + "));\n"
+        output += tab + "node.item = item;\n"
+        output += tab + "if (!list->head) {\n"
+        output += tab + tab + "list->head = node;\n"
+        output += tab + tab + "list->tail = node;\n"
+        output += tab + tab + "list->length++;\n"
+        output += tab + tab + "return;\n"
+        output += tab + "node->next = list->head;\n"
+        output += tab + "list->head = node;\n"
+        output += tab + "list->length++;\n"
+        output += "}\n"
+
+        output += "#endif //LIST_" + list_type + "_\n"
+        self.function_defs = output
+        self.write_to_file(list_type)
+        return name
 

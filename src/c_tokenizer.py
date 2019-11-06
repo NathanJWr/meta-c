@@ -74,6 +74,8 @@ class Tokenizer:
                 self.last_char = cur_file.read(1)
             if identifier_string == "vector":
                 return CToken(Tok.vector, identifier_string, self.current_line, self.num_tabs)
+            if identifier_string == "list":
+                return CToken(Tok.c_list, identifier_string, self.current_line, self.num_tabs)
             elif identifier_string == "typedef":
                 return CToken(Tok.typedef, identifier_string, self.current_line, self.num_tabs)
             elif identifier_string == "struct":
