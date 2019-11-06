@@ -95,36 +95,36 @@ class CList:
             var_type = self.get_var_type(var_name, tokens[0])
             normal_out += "list_" + var_type + "_init"
             normal_out += "(&" + var_name
-        elif token.string == "push":
-            tokens.popleft() # eat 'push'
+        elif token.string == "pushback":
+            tokens.popleft() # eat 'pushback'
             tokens.popleft() # eat '('
             args = get_func_args(tokens)
             if len(args) != 2:
-                log_error(tokens[0], "Invalid number of arguments in call to 'list_push'")
+                log_error(tokens[0], "Invalid number of arguments in call to 'list_pushback'")
             var_name = args[0]
             var_type = self.get_var_type(var_name, tokens[0])
             item = args[1]
-            normal_out += "list_" + var_type + "_push"
+            normal_out += "list_" + var_type + "_pushback"
             normal_out += "(&" + var_name + ", " + item
         elif token.string == "front":
             tokens.popleft() # eat 'front'
             tokens.popleft() # eat '('
             args = get_func_args(tokens)
             if len(args) != 1:
-                log_error(tokens[0], "Invalid number of arguments in call to 'list_push'")
+                log_error(tokens[0], "Invalid number of arguments in call to 'list_pushback'")
             var_name = args[0]
             var_type = self.get_var_type(var_name, tokens[0])
             normal_out += "*list_" + var_type + "_front"
             normal_out += "(" + var_name
-        elif token.string == "pop":
-            tokens.popleft() # eat 'pop'
+        elif token.string == "popfront":
+            tokens.popleft() # eat 'popfront'
             tokens.popleft() # eat '('
             args = get_func_args(tokens)
             if len(args) != 1:
-                log_error(tokens[0], "Invalid number of arguments in call to 'list_push'")
+                log_error(tokens[0], "Invalid number of arguments in call to 'list_pushback'")
             var_name = args[0]
             var_type = self.get_var_type(var_name, tokens[0])
-            normal_out += "list_" + var_type + "_pop"
+            normal_out += "list_" + var_type + "_popfront"
             normal_out += "(&" + var_name
 
 
@@ -213,7 +213,7 @@ class CList:
         output += tab + "list->length = 0;\n"
         output += "}\n"
 
-        # void list_type_push(list_type* list, type item) {
+        # void list_type_pushback(list_type* list, type item) {
         #     node = malloc(sizeof(node));
         #     node.item = item;
         #     if (!list->head) {
@@ -226,7 +226,7 @@ class CList:
         #     list->head = node;
         #     list->length++;
         # }
-        output += "static void " + function_stub + "_push(" + function_stub + "* list, " + list_type + " item) {\n"
+        output += "static void " + function_stub + "_pushback(" + function_stub + "* list, " + list_type + " item) {\n"
         output += tab + node_name + "* node = malloc(sizeof(" + node_name + "));\n"
         output += tab + "node->item = item;\n"
         output += tab + "if (!list->head) {\n"
@@ -247,7 +247,7 @@ class CList:
         output += tab + "return &list.head->item;\n"
         output += "}\n"
 
-        # void list_type_pop(list_type* list) {
+        # void list_type_popfront(list_type* list) {
         #     node_name* node;
         #     if (!list->head) {
         #         return;
@@ -257,7 +257,7 @@ class CList:
         #     free(node)
         #     list->length--;
         # }
-        output += "static void " + function_stub + "_pop(" + function_stub + "* list) {\n"
+        output += "static void " + function_stub + "_popfront(" + function_stub + "* list) {\n"
         output += tab + node_name + "* node;\n"
         output += tab + "if (!list->head) {\n"
         output += tab + tab + "return;\n"
