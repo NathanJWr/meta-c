@@ -8,13 +8,13 @@ from collections import deque
 from typing import List
     
 include_list: List[str] = []
-def generate_include(output: Output, definitions: List[str]) -> None:
+def generate_include(output: Output, definitions: List[str], container: str) -> None:
     #global include_list
     #if not name in include_list:
     #    output.global_out += "#include \"__" + name + ".h\"\n"
     #    include_list.append(name)
     for definition in definitions:
-        output.global_out += "#include \"__vector_" + definition + ".h\"\n"
+        output.global_out += "#include \"__" + container + "_" + definition + ".h\"\n"
     return
 
 class CParser:
@@ -112,7 +112,8 @@ class CParser:
             else:
                 output.normal_out += token.string
                 tokens.popleft()
-        generate_include(output, vector.definitions)
+        generate_include(output, vector.definitions, "vector")
+        generate_include(output, c_list.definitions, "list")
         return
 
     def parse_typedef(self, output: Output, tokens: deque) -> None:
