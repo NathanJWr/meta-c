@@ -1,7 +1,7 @@
 from logging import log_error
 from output import Output
 from c_token import CToken, Tok
-from c_parser_utils import get_whole_name, get_func_args
+from c_parser_utils import get_whole_name, get_func_args, eat_white_space
 
 from collections import deque
 from typing import Dict, List, Union
@@ -95,7 +95,7 @@ class CList:
             var_type = self.get_var_type(var_name, tokens[0])
             normal_out += "list_" + var_type + "_init"
             normal_out += "(&" + var_name
-        if token.string == "push":
+        elif token.string == "push":
             tokens.popleft() # eat 'push'
             tokens.popleft() # eat '('
             args = get_func_args(tokens)
@@ -106,12 +106,34 @@ class CList:
             item = args[1]
             normal_out += "list_" + var_type + "_push"
             normal_out += "(&" + var_name + ", " + item
+        elif token.string == "front":
+            tokens.popleft() # eat 'front'
+            tokens.popleft() # eat '('
+            args = get_func_args(tokens)
+            if len(args) != 1:
+                log_error(tokens[0], "Invalid number of arguments in call to 'list_push'")
+            var_name = args[0]
+            var_type = self.get_var_type(var_name, tokens[0])
+            normal_out += "*list_" + var_type + "_front"
+            normal_out += "(" + var_name
+        elif token.string == "pop":
+            tokens.popleft() # eat 'pop'
+            tokens.popleft() # eat '('
+            args = get_func_args(tokens)
+            if len(args) != 1:
+                log_error(tokens[0], "Invalid number of arguments in call to 'list_push'")
+            var_name = args[0]
+            var_type = self.get_var_type(var_name, tokens[0])
+            normal_out += "list_" + var_type + "_pop"
+            normal_out += "(&" + var_name
+
 
         token = tokens[0]
-        while token.val != Tok.semicolon:
+        while token.string != ";":
             normal_out += token.string
             tokens.popleft()
             token = tokens[0]
+
         normal_out += ";"
         tokens.popleft()
         self.output.normal_out = normal_out
@@ -216,6 +238,34 @@ class CList:
         output += tab + "node->next = list->head;\n"
         output += tab + "list->head = node;\n"
         output += tab + "list->length++;\n"
+        output += "}\n"
+
+        # type* list_type_front(list_type list) {
+        #     return &list.head->item;
+        # }
+        output += "static inline " + list_type + "* " + function_stub + "_front(" + function_stub + " list) {\n"
+        output += tab + "return &list.head->item;\n"
+        output += "}\n"
+
+        # void list_type_pop(list_type* list) {
+        #     node_name* node;
+        #     if (!list->head) {
+        #         return;
+        #     }
+        #     node = list->head;
+        #     list->head = list->head->next
+        #     free(node)
+        #     list->length--;
+        # }
+        output += "static void " + function_stub + "_pop(" + function_stub + "* list) {\n"
+        output += tab + node_name + "* node;\n"
+        output += tab + "if (!list->head) {\n"
+        output += tab + tab + "return;\n"
+        output += tab + "}\n"
+        output += tab + "node = list->head;\n"
+        output += tab + "list->head = list->head->next;\n"
+        output += tab + "free(node);\n"
+        output += tab + "list->length--;\n"
         output += "}\n"
 
         output += "#endif //LIST_" + list_type + "_\n"
