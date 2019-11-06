@@ -22,15 +22,46 @@ class Tokenizer:
         identifier_string = ""
         if self.last_char == "\n":
             self.current_line += 1
+            identifier_string = self.last_char
+            self.last_char = cur_file.read(1)
+            return CToken(Tok.newline, "\n", self.current_line, self.num_tabs)
 
         elif self.last_char == "{":
             self.num_tabs += 1
+            identifier_string = self.last_char
+            self.last_char = cur_file.read(1)
+            return CToken(Tok.left_bracket, "{", self.current_line, self.num_tabs)
 
         elif self.last_char == "}":
             self.num_tabs -= 1
             identifier_string = self.last_char
             self.last_char = cur_file.read(1)
-            return CToken(Tok.end_bracket, "}", self.current_line, self.num_tabs)
+            return CToken(Tok.right_bracket, "}", self.current_line, self.num_tabs)
+
+        elif self.last_char == "(":
+            identifier_string = self.last_char
+            self.last_char = cur_file.read(1)
+            return CToken(Tok.left_paren, "(", self.current_line, self.num_tabs)
+        elif self.last_char == ")":
+            identifier_string = self.last_char
+            self.last_char = cur_file.read(1)
+            return CToken(Tok.right_paren, ")", self.current_line, self.num_tabs)
+        elif self.last_char == "<":
+            identifier_string = self.last_char
+            self.last_char = cur_file.read(1)
+            return CToken(Tok.less_than, "<", self.current_line, self.num_tabs)
+        elif self.last_char == ">":
+            identifier_string = self.last_char
+            self.last_char = cur_file.read(1)
+            return CToken(Tok.greater_than, ">", self.current_line, self.num_tabs)
+        elif self.last_char == "#":
+            identifier_string = self.last_char
+            self.last_char = cur_file.read(1)
+            return CToken(Tok.pound, "#", self.current_line, self.num_tabs)
+        elif self.last_char == " ":
+            identifier_string = self.last_char
+            self.last_char = cur_file.read(1)
+            return CToken(Tok.space, " ", self.current_line, self.num_tabs)
 
         elif self.last_char == ";":
             identifier_string = self.last_char
@@ -45,6 +76,8 @@ class Tokenizer:
                 return CToken(Tok.vector, identifier_string, self.current_line, self.num_tabs)
             elif identifier_string == "typedef":
                 return CToken(Tok.typedef, identifier_string, self.current_line, self.num_tabs)
+            elif identifier_string == "struct":
+                return CToken(Tok.struct, identifier_string, self.current_line, self.num_tabs)
             else:
                 return CToken(Tok.identifier, identifier_string, self.current_line, self.num_tabs)
 
@@ -60,5 +93,4 @@ class Tokenizer:
         identifier_string = self.last_char
         self.last_char = cur_file.read(1)
         return CToken(Tok.char, identifier_string, self.current_line, self.num_tabs)
-        
 

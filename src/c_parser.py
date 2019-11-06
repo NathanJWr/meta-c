@@ -19,13 +19,16 @@ def get_whole_name(tokens: deque) -> str:
     name = ""
     token = tokens[0]
     while (token.val != Tok.semicolon 
-        and token.string != ")" 
-        and token.string != " "
-        and token.string != "(" 
-        and token.string != ">"
-        and token.string != "["
-        and token.string != "\n"
-        and token.string != "#"):
+        and token.val != Tok.left_paren
+        and token.val != Tok.right_paren
+        and token.val != Tok.space
+        and token.val != Tok.greater_than
+        and token.val != Tok.less_than
+        and token.val != Tok.left_bracket
+        and token.val != Tok.right_bracket
+        and token.val != Tok.pound
+        and token.val != Tok.newline):
+
         name += token.string
         tokens.popleft()
         token = tokens[0]
@@ -51,12 +54,12 @@ class CParser:
         nesting = -1
         while tokens and nesting != 0:
             token = tokens[0]
-            if token.string == "{":
+            if token.val == Tok.left_bracket:
                 if nesting == -1:
                     nesting = 1
                 else:
                     nesting += 1
-            elif token.string == "}":
+            elif token.val == Tok.right_bracket:
                 nesting -= 1
             if token.val == Tok.semicolon and nesting == -1:
                 # This is just a function statement,
@@ -131,9 +134,9 @@ class CParser:
         while token.val != Tok.identifier:
             token = tokens.popleft()
 
-        if token.string == "struct":
+        if token.val == Tok.struct:
             output.global_out += "typedef " + token.string
-            while token.val != Tok.end_bracket:
+            while token.val != Tok.right_bracket:
                 token = tokens.popleft()
                 output.global_out += token.string
 

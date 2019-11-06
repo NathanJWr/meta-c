@@ -1,14 +1,23 @@
-from enum import Enum
+from enum import Enum, auto
 class Tok(Enum):
-    eof = -1,
-    identifier = -2
-    vector = -3
-    template = -4
-    typedef = -5
-    constant = -6
-    char = -7
-    end_bracket = -8
-    semicolon = -9
+    eof = auto()
+    identifier = auto()
+    vector = auto()
+    template = auto()
+    typedef = auto()
+    struct = auto()
+    constant = auto()
+    char = auto()
+    left_bracket = auto()
+    right_bracket = auto()
+    semicolon = auto()
+    left_paren = auto()
+    right_paren = auto()
+    less_than = auto()
+    greater_than = auto()
+    pound = auto()
+    space = auto()
+    newline = auto()
 
 class CToken:
     def __init__(self, token, string, line_num, num_tabs):
