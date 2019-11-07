@@ -109,7 +109,6 @@ class CList:
         elif token.string == "pushback":
             tokens.popleft() # eat 'pushback'
             tokens.popleft() # eat '('
-            breakpoint()
             args = get_func_args(tokens)
 
             if len(args) != 2:
