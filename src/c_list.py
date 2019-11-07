@@ -109,6 +109,7 @@ class CList:
         elif token.string == "pushback":
             tokens.popleft() # eat 'pushback'
             tokens.popleft() # eat '('
+            breakpoint()
             args = get_func_args(tokens)
 
             if len(args) != 2:
@@ -138,7 +139,18 @@ class CList:
             var_type = self.get_var_type(var_name, tokens[0])
             normal_out += "list_" + var_type + "_popfront"
             normal_out += "(&" + var_name
-
+        elif token.string == "free":
+            tokens.popleft() # eat 'free'
+            tokens.popleft() # eat '('
+            args = get_func_args(tokens)
+            if len(args) != 1:
+                log_error(tokens[0], "Invalid number of arguments in call to 'list_pushfront'")
+            var_name = args[0]
+            var_type = self.get_var_type(var_name, tokens[0])
+            normal_out += "list_" + var_type + "_free"
+            normal_out += "(&" + var_name
+        else:
+            log_error(tokens[0], "Function is not supported by the list container")
 
         token = tokens[0]
         while token.string != ";":
@@ -309,6 +321,38 @@ class CList:
         output += tab + "list->head = list->head->next;\n"
         output += tab + "free(node);\n"
         output += tab + "list->length--;\n"
+        output += "}\n"
+
+        # type* list_type_at(list_type* list, size_t index) {
+        #     if (index > list->length) return NULL;
+        #     Node_type* node = list->head;
+        #     for (size_t i = 0; i < index; i++)
+        #         node = node->next; 
+        #     return &node->item; 
+        # }
+        output += "static " + list_type + "* " + function_stub + "_at(" + function_stub + "* list, size_t index) {\n"
+        output += tab + "if (index > list->length || index < 0) return NULL;\n"
+        output += tab + node_name + "* node = list->head;\n"
+        output += tab + "for (size_t i = 0; i < index; i++)\n"
+        output += tab + tab + "node = node->next;\n"
+        output += tab + "return &node->item;\n"
+        output += "}\n"
+
+        # void list_type_free(list_type* list) {
+        #     Node_type node* = list->head;
+        #     while (node) {
+        #         tmp = node->next;
+        #         free(node);
+        #         node = tmp;
+        #     }
+        # }
+        output += "static void " + function_stub + "_free(" + function_stub + "* list) {\n"
+        output += tab + node_name + "* node = list->head;\n"
+        output += tab + "while (node) {\n"
+        output += tab + tab + node_name + "* tmp = node->next;\n"
+        output += tab + tab + "free(node);\n"
+        output += tab + tab + "node = tmp;\n"
+        output += tab + "}\n"
         output += "}\n"
 
         output += "#endif //LIST_" + list_type + "_\n"

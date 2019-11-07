@@ -42,8 +42,6 @@ def get_func_arg(tokens: deque) -> str:
         token = tokens[0]
         if token.string == ",":
             return arg
-        elif token.string.isspace():
-            return arg
         elif token.string == ")":
             return arg
         elif token.val == Tok.identifier:
