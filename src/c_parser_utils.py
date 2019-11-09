@@ -13,6 +13,8 @@ def get_whole_name(tokens: deque) -> str:
         and token.val != Tok.less_than
         and token.val != Tok.left_bracket
         and token.val != Tok.right_bracket
+        and token.val != Tok.left_bracket_sq
+        and token.val != Tok.right_bracket_sq
         and token.val != Tok.pound
         and token.val != Tok.newline):
 

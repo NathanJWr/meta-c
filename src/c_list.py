@@ -109,7 +109,6 @@ class CList:
         elif token.string == "pushback":
             tokens.popleft() # eat 'pushback'
             tokens.popleft() # eat '('
-            breakpoint()
             args = get_func_args(tokens)
 
             if len(args) != 2:
@@ -139,6 +138,18 @@ class CList:
             var_type = self.get_var_type(var_name, tokens[0])
             normal_out += "list_" + var_type + "_popfront"
             normal_out += "(&" + var_name
+        elif token.string == "at":
+            tokens.popleft() # eat 'at'
+            tokens.popleft() # eat '('
+            args = get_func_args(tokens)
+            if len(args) != 2:
+                log_error(tokens[0], "Invalid number of arguments in call to 'list_pushfront'")
+            var_name = args[0]
+            var_type = self.get_var_type(var_name, tokens[0])
+            index = args[1]
+            normal_out += "*list_" + var_type + "_at"
+            normal_out += "(&" + var_name + ", " + index
+
         elif token.string == "free":
             tokens.popleft() # eat 'free'
             tokens.popleft() # eat '('

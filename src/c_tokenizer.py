@@ -58,6 +58,14 @@ class Tokenizer:
             identifier_string = self.last_char
             self.last_char = cur_file.read(1)
             return CToken(Tok.pound, "#", self.current_line, self.num_tabs)
+        elif self.last_char == "[":
+            identifier_string = self.last_char
+            self.last_char = cur_file.read(1)
+            return CToken(Tok.left_bracket_sq, "[", self.current_line, self.num_tabs)
+        elif self.last_char == "]":
+            identifier_string = self.last_char
+            self.last_char = cur_file.read(1)
+            return CToken(Tok.right_bracket_sq, "]", self.current_line, self.num_tabs)
         elif self.last_char == " ":
             identifier_string = self.last_char
             self.last_char = cur_file.read(1)

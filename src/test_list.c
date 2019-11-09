@@ -9,7 +9,10 @@ int main() {
         list_pushback(nums, i);
     }
     for (int i = 0; i < 20; i++) {
-        printf("%d\n", list_front(nums));
+        printf("%d\n", list_at(nums, i));
+    }
+    for (int i = 0; i < 20; i++) {
+        printf("%d\n", nums[i]);
     }
 
     list<char> chars;
@@ -19,8 +22,8 @@ int main() {
     }
     for (int i = 0; i < 26; i++) {
         printf("%c\n", list_front(chars));
+        list_popfront(chars);
     }
 
     list_free(nums);
-    list_free(chars);
 }
