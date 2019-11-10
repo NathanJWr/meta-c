@@ -11,6 +11,8 @@ class Tok(Enum):
     char = auto()
     left_bracket = auto()
     right_bracket = auto()
+    left_bracket_sq = auto()
+    right_bracket_sq = auto()
     semicolon = auto()
     left_paren = auto()
     right_paren = auto()

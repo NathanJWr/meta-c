@@ -57,10 +57,12 @@ class CParser:
                 local_vars.append(var_name)
             elif token.val == Tok.identifier:
                 string = get_whole_name(tokens)
-                if not string in vector.variables:
-                    output.normal_out += string
-                else:
+                if string in vector.variables:
                     vector.parse_variable(tokens, string)
+                elif string in c_list.variables:
+                    c_list.parse_variable(tokens, string)
+                else:
+                    output.normal_out += string
             else:
                 output.normal_out += token.string
                 tokens.popleft()
@@ -69,6 +71,7 @@ class CParser:
         # affect other areas of the source code
         # generate_include(output, vector.definitions)
         vector.purge_variables(local_vars)
+        print("Done parsing " + name)
 
     def parse(self,
               output: Output,
@@ -105,10 +108,13 @@ class CParser:
                                             vector,
                                             c_list)
 
-                elif not string in vector.variables:
-                    output.normal_out += string
-                else:
+                elif string in vector.variables:
                     vector.parse_variable(tokens, string)
+                elif string in c_list.variables:
+                    breakpoint()
+                    c_list.parse_variable(tokens, string)
+                else:
+                    output.normal_out += string
             else:
                 output.normal_out += token.string
                 tokens.popleft()
