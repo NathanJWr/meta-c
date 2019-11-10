@@ -73,8 +73,8 @@ class CList:
             tokens.popleft()
             # listtor_'type' name;
             normal_out += list_name + " " + var_name + ";\n"
-        elif (token.val == Tok.left_paren):
-            normal_out += list_name + " " + var_name
+        elif (token.val == Tok.right_paren):
+            normal_out += list_name + " " + var_name + ")"
 
         self.output.normal_out = normal_out
         return var_name
@@ -109,7 +109,6 @@ class CList:
         elif token.string == "pushback":
             tokens.popleft() # eat 'pushback'
             tokens.popleft() # eat '('
-            breakpoint()
             args = get_func_args(tokens)
 
             if len(args) != 2:

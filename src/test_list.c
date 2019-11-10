@@ -1,4 +1,13 @@
 #include <stdio.h>
+void pass_list(list<int> nums) {
+    // test access to first item
+    int i;
+    printf("Numbers passed in: ");
+    for (i = 0; i < nums.length; i++) {
+        printf("%d ", nums[i])
+    }
+}
+
 int main() {
     list<int> nums;
     list_init(nums);
@@ -11,6 +20,7 @@ int main() {
     for (int i = 0; i < 20; i++) {
         printf("%d\n", list_front(nums));
     }
+    pass_list(nums);
 
     list<char> chars;
     list_init(chars);
