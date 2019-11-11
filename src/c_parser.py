@@ -9,13 +9,17 @@ from typing import List
     
 include_list: List[str] = []
 def generate_include(output: Output, definitions: List[str], container: str) -> None:
-    #global include_list
-    #if not name in include_list:
-    #    output.global_out += "#include \"__" + name + ".h\"\n"
-    #    include_list.append(name)
     for definition in definitions:
         output.global_out += "#include \"__" + container + "_" + definition + ".h\"\n"
     return
+
+def ignore_quotation(output: Output, tokens: deque) -> None:
+    output.normal_out += tokens.popleft().string
+    token = tokens[0]
+    while token.val != Tok.quotation:
+        output.normal_out += token.string
+        tokens.popleft()
+        token = tokens[0]
 
 class CParser:
     function_types = ["char", "short", "int", "long", "void"]
@@ -47,6 +51,8 @@ class CParser:
                 return
 
 
+            if token.val == Tok.quotation:
+                ignore_quotation(output, tokens)
             if token.val == Tok.typedef:
                 self.parse_typedef(output, tokens)
             elif token.val == Tok.vector:
@@ -81,6 +87,9 @@ class CParser:
         c_list = CList(output)
         while tokens:
             token = tokens[0]
+            if token.val == Tok.quotation:
+                ignore_quotation(output, tokens)
+
             if token.val == Tok.typedef:
                 self.parse_typedef(output, tokens)
             elif token.val == Tok.vector:
@@ -111,7 +120,6 @@ class CParser:
                 elif string in vector.variables:
                     vector.parse_variable(tokens, string)
                 elif string in c_list.variables:
-                    breakpoint()
                     c_list.parse_variable(tokens, string)
                 else:
                     output.normal_out += string

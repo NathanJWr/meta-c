@@ -21,6 +21,7 @@ class Tok(Enum):
     pound = auto()
     space = auto()
     newline = auto()
+    quotation = auto()
 
 class CToken:
     def __init__(self, token, string, line_num, num_tabs):

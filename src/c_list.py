@@ -2,13 +2,14 @@ from logging import log_error
 from output import Output
 from c_token import CToken, Tok
 from c_parser_utils import get_whole_name, get_func_args, eat_white_space
+from c_var import CVarData
 
 from collections import deque
 from typing import Dict, List, Union
 
 class CList:
     output: Output
-    variables: Dict[str, str] = dict()
+    variables: Dict[str, CVarData] = dict()
     definitions: List[str] = []
     function_defs: str
 
@@ -27,6 +28,17 @@ class CList:
         for var in variables:
             if var in self.variables:
                 del self.variables[var]
+    def insert_address(self, reference_count) -> str:
+        string = ""
+        if reference_count > 1:
+            string += "("
+            for i in range(1, reference_count):
+                string += "*"
+        elif reference_count == 0:
+            string += "(&"
+        else:
+            string += "("
+        return string
 
     def parse(self, tokens: deque) -> str:
         normal_out = self.output.normal_out
@@ -48,23 +60,27 @@ class CList:
         list_name = self.generate_definition(list_type)
         print(list_name)
 
-        tokens.popleft() # eat '>'
+        tokens.popleft()
         token = tokens[0]
         if token.string != ">":
-            log_error(token, "Expected '>' in listtor declaration")
+            log_error(token, "Expected '>' in list declaration")
 
-        # make sure you don't hit the end of statment before finding a var name
-        while token.val != Tok.identifier:
-            if token.val == Tok.semicolon:
-                log_error(token, "Expected variable name in listtor declaration")
+        tokens.popleft() # eat '>'
+        eat_white_space(tokens)
+
+        preamble = ""
+        pointer = 0
+        while tokens[0].string == "*":
             tokens.popleft()
-            token = tokens[0]
+            preamble += "*"
+            pointer += 1
 
         # get whole var name
+        eat_white_space(tokens)
         var_name = get_whole_name(tokens)
 
         # The variable should be discarded when leaving a function
-        self.variables[var_name] = list_type
+        self.variables[var_name] = CVarData(list_type, pointer)
 
         while (token.val != Tok.semicolon) and (token.string != ")"):
             token = tokens.popleft()
@@ -72,9 +88,9 @@ class CList:
         if (token.val == Tok.semicolon):
             tokens.popleft()
             # listtor_'type' name;
-            normal_out += list_name + " " + var_name + ";\n"
+            normal_out += list_name + preamble + " "+ var_name + ";\n"
         elif (token.val == Tok.right_paren):
-            normal_out += list_name + " " + var_name + ")"
+            normal_out += list_name + preamble + " " + var_name + ")"
 
         self.output.normal_out = normal_out
         return var_name
@@ -137,7 +153,9 @@ class CList:
             var_name = args[0]
             var_type = self.get_var_type(var_name, tokens[0])
             normal_out += "list_" + var_type + "_popfront"
-            normal_out += "(&" + var_name
+            reference = self.variables[var_name].pointer
+            normal_out += self.insert_address(reference)
+            normal_out += var_name
         elif token.string == "at":
             tokens.popleft() # eat 'at'
             tokens.popleft() # eat '('
@@ -148,7 +166,7 @@ class CList:
             var_type = self.get_var_type(var_name, tokens[0])
             index = args[1]
             normal_out += "*list_" + var_type + "_at"
-            normal_out += "(&" + var_name + ", " + index
+            normal_out += "(" + var_name + ", " + index
 
         elif token.string == "free":
             tokens.popleft() # eat 'free'
@@ -176,7 +194,7 @@ class CList:
     def get_var_type(self, var_name: str, token: CToken) -> str:
         var_type = ""
         if var_name in self.variables:
-            var_type = self.variables[var_name]
+            var_type = self.variables[var_name].c_type
         else: 
             log_error(token, "Variable '" + var_name + "' does not exist.")
         return var_type
@@ -341,9 +359,9 @@ class CList:
         #         node = node->next; 
         #     return &node->item; 
         # }
-        output += "static " + list_type + "* " + function_stub + "_at(" + function_stub + "* list, size_t index) {\n"
-        output += tab + "if (index > list->length || index < 0) return NULL;\n"
-        output += tab + node_name + "* node = list->head;\n"
+        output += "static " + list_type + "* " + function_stub + "_at(" + function_stub + " list, size_t index) {\n"
+        output += tab + "if (index > list.length || index < 0) return NULL;\n"
+        output += tab + node_name + "* node = list.head;\n"
         output += tab + "for (size_t i = 0; i < index; i++)\n"
         output += tab + tab + "node = node->next;\n"
         output += tab + "return &node->item;\n"
