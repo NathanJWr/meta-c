@@ -39,6 +39,16 @@ class CList:
         else:
             string += "("
         return string
+    def insert_copy(self, reference_count) -> str:
+        string = ""
+        if reference_count >= 1:
+            string += "("
+            for i in range(0, reference_count):
+                string += "*"
+        else:
+            string += "("
+        return string
+
 
     def parse(self, tokens: deque) -> str:
         normal_out = self.output.normal_out
@@ -79,18 +89,27 @@ class CList:
         eat_white_space(tokens)
         var_name = get_whole_name(tokens)
 
+
         # The variable should be discarded when leaving a function
         self.variables[var_name] = CVarData(list_type, pointer)
 
-        while (token.val != Tok.semicolon) and (token.string != ")"):
+        while (token.val != Tok.semicolon
+                and token.string != ")"
+                and token.string != "="):
             token = tokens.popleft()
 
-        if (token.val == Tok.semicolon):
+        if (var_name == ""):
+            # Assume user just wants replacement to struct name
+            normal_out += list_name + preamble + token.string
+
+        elif (token.val == Tok.semicolon):
             tokens.popleft()
             # listtor_'type' name;
             normal_out += list_name + preamble + " "+ var_name + ";\n"
         elif (token.val == Tok.right_paren):
             normal_out += list_name + preamble + " " + var_name + ")"
+        else:
+            normal_out += list_name + preamble + " " + var_name + " " + token.string
 
         self.output.normal_out = normal_out
         return var_name
@@ -110,7 +129,9 @@ class CList:
             var_name = args[0]
             var_type = self.get_var_type(var_name, tokens[0])
             normal_out += "list_" + var_type + "_init"
-            normal_out += "(&" + var_name
+            reference = self.variables[var_name].pointer
+            normal_out += self.insert_address(reference)
+            normal_out +=  var_name
         elif token.string == "pushfront":
             tokens.popleft() # eat 'pushfront'
             tokens.popleft() # eat '('
@@ -121,7 +142,9 @@ class CList:
             var_type = self.get_var_type(var_name, tokens[0])
             item = args[1]
             normal_out += "list_" + var_type + "_pushfront"
-            normal_out += "(&" + var_name + ", " + item
+            reference = self.variables[var_name].pointer
+            normal_out += self.insert_address(reference)
+            normal_out += var_name + ", " + item
         elif token.string == "pushback":
             tokens.popleft() # eat 'pushback'
             tokens.popleft() # eat '('
@@ -133,7 +156,9 @@ class CList:
             var_type = self.get_var_type(var_name, tokens[0])
             item = args[1]
             normal_out += "list_" + var_type + "_pushback"
-            normal_out += "(&" + var_name + ", " + item
+            reference = self.variables[var_name].pointer
+            normal_out += self.insert_address(reference)
+            normal_out += var_name + ", " + item
         elif token.string == "front":
             tokens.popleft() # eat 'front'
             tokens.popleft() # eat '('
@@ -176,8 +201,11 @@ class CList:
                 log_error(tokens[0], "Invalid number of arguments in call to 'list_pushfront'")
             var_name = args[0]
             var_type = self.get_var_type(var_name, tokens[0])
+            reference = self.variables[var_name].pointer
             normal_out += "list_" + var_type + "_free"
-            normal_out += "(&" + var_name
+            normal_out += self.insert_address(reference)
+            normal_out += var_name
+
         else:
             log_error(tokens[0], "Function is not supported by the list container")
 
@@ -204,7 +232,10 @@ class CList:
             tokens.popleft()
             normal_out = self.output.normal_out
             normal_out += "*list_" + self.get_var_type(var_name, tokens[0])
-            normal_out += "_at(" + var_name + ", "
+            normal_out += "_at"
+            reference = self.variables[var_name].pointer
+            normal_out += self.insert_copy(reference)
+            normal_out += var_name + ", "
 
             token = tokens[0]
             if token.val == Tok.constant or token.val == Tok.identifier or token.val == Tok.char:
@@ -285,6 +316,7 @@ class CList:
         output += tab + "if (!list->head) {\n"
         output += tab + tab + "list->head = node;\n"
         output += tab + tab + "list->tail = node;\n"
+        output += tab + tab + "list->tail->next = NULL;\n"
         output += tab + tab + "list->length++;\n"
         output += tab + tab + "return;\n"
         output += tab + "}\n"

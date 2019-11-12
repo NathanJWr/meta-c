@@ -1,10 +1,43 @@
 #include <stdio.h>
+#include <assert.h>
+void change_list_ptr(list<char>** chars) {
+    list<char>* new_chars = malloc(sizeof(list<char>));
+    list_init(new_chars);
+    list_pushback(new_chars, 'a');
+    list_pushback(new_chars, 'b');
+    list_pushback(new_chars, 'c');
+
+    list_free(chars);
+    free(*chars);
+
+    *chars = new_chars;
+}
+
+void test_mallocing_list() {
+    list<char>* chars = malloc(sizeof(list<char>));
+    int i;
+
+    list_init(chars);
+    list_pushfront(chars, 'a');
+    list_pushfront(chars, 'b');
+    list_pushfront(chars, 'c');
+
+    change_list_ptr(&chars);
+    for (i = 0; i < chars->length; i++) {
+        assert(chars[i] == 'a' + i);
+    }
+
+    list_free(chars);
+    free(chars);
+}
+
 void free_half(list<char>* chars) {
     int i;
     for (i = 0; i < chars->length / 2; i++) {
         list_popfront(chars);
     }
 }
+
 
 void pass_list(list<int> nums) {
     int i;
@@ -21,6 +54,8 @@ void pass_list(list<int> nums) {
 }
 
 int main() {
+    test_mallocing_list();
+
     list<int> nums;
     list_init(nums);
     for (int i = 0; i < 10; i++) {
@@ -36,9 +71,9 @@ int main() {
     for (int i = 0; i < 26; i++) {
         list_pushback(chars, 'a' + i);
     }
-    printf("chars length before free_half: %d\n", chars.length);
+    printf("chars length before free_half: %zu\n", chars.length);
     free_half(&chars);
-    printf("chars length after free_half: %d\n", chars.length);
+    printf("chars length after free_half: %zu\n", chars.length);
     for (int i = 0; i < 26; i++) {
         printf("%c\n", list_front(chars));
         list_popfront(chars);
