@@ -23,6 +23,9 @@ def ignore_quotation(output: Output, tokens: deque) -> None:
 
 class CParser:
     function_types = ["char", "short", "int", "long", "void"]
+    bounds_checked: bool
+    def __init__(self, bounds_checked: bool):
+        self.bounds_checked = bounds_checked
 
     def parse_function(self,
                        output: Output,
@@ -84,7 +87,7 @@ class CParser:
               tokens: deque,
               source_file: int) -> None:
         vector = Vector(output)
-        c_list = CList(output)
+        c_list = CList(output, self.bounds_checked)
         while tokens:
             token = tokens[0]
             if token.val == Tok.quotation:

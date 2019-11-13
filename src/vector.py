@@ -3,7 +3,7 @@ from output import Output
 from c_token import CToken, Tok
 
 from collections import deque
-from typing import Dict, List
+from typing import Dict, List, Union
 from c_parser_utils import get_func_args
 
 class Vector:
