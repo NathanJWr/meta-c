@@ -3,10 +3,12 @@ from c_parser import CParser
 from output import Output
 from c_tokenizer import Tokenizer
 import getopt, sys
+import time
 
 from collections import deque
 from typing import Deque, TextIO
 
+init_time = time.time()
 
 file_list = ["test_list.c"]
 source_file_count = 0
@@ -52,3 +54,6 @@ while source_file_count < len(file_list):
     print(source_file_count)
     cur_file.close()
 
+finish_time = time.time()
+
+print("Time taken: " + str(finish_time - init_time) + "s")
