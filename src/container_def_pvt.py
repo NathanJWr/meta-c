@@ -4,6 +4,8 @@ def generate_list(self, list_type) -> str:
     output = ""
 
     output += "#include <stdlib.h>\n"
+    if self.bounds_checked:
+        output += "#include <assert.h>\n"
     output += "#ifndef list_" + list_type + "_\n"
     output += "#define list_" + list_type + "_\n"
 
@@ -129,14 +131,17 @@ def generate_list(self, list_type) -> str:
     output += "}\n"
 
     # type* list_type_at(list_type* list, size_t index) {
-    #     if (index > list->length) return NULL;
+    #     assert (index > list->length);
+    #     assert (index >= 0);
     #     node_type* node = list->head;
     #     for (size_t i = 0; i < index; i++)
     #         node = node->next; 
     #     return &node->item; 
     # }
     output += "static " + list_type + "* " + function_stub + "_at(" + function_stub + " list, size_t index) {\n"
-    output += tab + "if (index > list.length || index < 0) return NULL;\n"
+    if self.bounds_checked:
+        output += tab + "assert(index < list.length);\n"
+        output += tab + "assert(index >= 0);\n"
     output += tab + node_name + "* node = list.head;\n"
     output += tab + "for (size_t i = 0; i < index; i++)\n"
     output += tab + tab + "node = node->next;\n"

@@ -56,7 +56,6 @@ def parse(self, tokens: deque) -> str:
 
     list_type = tokens[0].string
     list_name = self.generate_definition(list_type)
-    print(list_name)
 
     tokens.popleft()
     token = tokens[0]
@@ -156,7 +155,9 @@ def parse_function(self, tokens: deque) -> None:
         var_name = args[0]
         var_type = self.get_var_type(var_name, tokens[0])
         normal_out += "*list_" + var_type + "_front"
-        normal_out += "(" + var_name
+        reference = self.variables[var_name].pointer
+        normal_out += insert_copy(reference)
+        normal_out += var_name
     elif token.string == "popfront":
         tokens.popleft() # eat 'popfront'
         tokens.popleft() # eat '('
@@ -179,7 +180,9 @@ def parse_function(self, tokens: deque) -> None:
         var_type = self.get_var_type(var_name, tokens[0])
         index = args[1]
         normal_out += "*list_" + var_type + "_at"
-        normal_out += "(" + var_name + ", " + index
+        reference = self.variables[var_name].pointer
+        normal_out += insert_copy(reference)
+        normal_out += var_name + ", " + index
 
     elif token.string == "free":
         tokens.popleft() # eat 'free'

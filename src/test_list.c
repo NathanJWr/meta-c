@@ -25,10 +25,66 @@ void test_mallocing_list() {
     change_list_ptr(&chars);
     for (i = 0; i < chars->length; i++) {
         assert(chars[i] == 'a' + i);
+        assert(list_at(chars, i) == 'a' + i);
     }
 
     list_free(chars);
     free(chars);
+}
+
+void test_all_functions_with_double_pointer(list<int>** nums) {
+    list_init(nums);
+
+    list_pushfront(nums, 1);
+    list_pushback(nums, 2);
+    assert(list_front(nums) == 1);
+    list_popfront(nums);
+    assert(list_front(nums) == 2);
+    list_popfront(nums);
+    list_pushback(nums, 3);
+    assert(list_front(nums) == 3);
+    list_pushfront(nums, 4);
+    assert(nums[1] == 3);
+    assert(list_at(nums, 1) == 3);
+    list_free(nums);
+
+}
+void test_all_functions_with_pointer() {
+    list<int>* nums = malloc(sizeof(list<int>));
+    list_init(nums);
+
+    list_pushfront(nums, 1);
+    list_pushback(nums, 2);
+    assert(list_front(nums) == 1);
+    list_popfront(nums);
+    assert(list_front(nums) == 2);
+    list_popfront(nums);
+    list_pushback(nums, 3);
+    assert(list_front(nums) == 3);
+    list_pushfront(nums, 4);
+    assert(nums[1] == 3);
+    assert(list_at(nums, 1) == 3);
+    list_free(nums);
+
+    test_all_functions_with_double_pointer(&nums);
+    free(nums);
+}
+void test_all_functions() {
+    list<int> nums;
+    list_init(nums);
+
+    list_pushfront(nums, 1);
+    list_pushback(nums, 2);
+    assert(list_front(nums) == 1);
+    list_popfront(nums);
+    assert(list_front(nums) == 2);
+    list_popfront(nums);
+    list_pushback(nums, 3);
+    assert(list_front(nums) == 3);
+    list_pushfront(nums, 4);
+    assert(nums[1] == 3);
+    assert(list_at(nums, 1) == 3);
+    list_free(nums);
 }
 
 void free_half(list<char>* chars) {
@@ -55,6 +111,7 @@ void pass_list(list<int> nums) {
 
 int main() {
     test_mallocing_list();
+    test_all_functions_with_pointer();
 
     list<int> nums;
     list_init(nums);
