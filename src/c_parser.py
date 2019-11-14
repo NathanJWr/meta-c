@@ -1,8 +1,9 @@
 from output import Output
 from c_token import CToken, Tok
-from c_parser_utils import get_whole_name, eat_white_space
+from c_parser_utils import get_whole_name, eat_white_space, get_func_args
 from c_list import CList
 from c_vector import CVector
+from c_logging import log_error
 
 from collections import deque
 from typing import List
@@ -26,6 +27,23 @@ class CParser:
     bounds_checked: bool
     def __init__(self, bounds_checked: bool):
         self.bounds_checked = bounds_checked
+    def parse_free(self, output: Output, tokens: deque) -> None:
+        tabs = tokens[0].num_tabs
+        while tokens[0].val != Tok.left_paren:
+            token = tokens.popleft()
+            output.normal_out += token.string
+        tokens.popleft() # eat 'c'
+        args = get_func_args(tokens)
+        if len(args) != 1:
+            log_error(tokens[0], "Invalid number of arguments for 'free'")
+        var_name = args[0]
+        while tokens[0].val != Tok.newline:
+            token = tokens.popleft()
+        tokens.popleft()
+        output.normal_out += "(" + var_name + ");\n"
+        for _ in range(0, tabs):
+            output.normal_out += "    "
+        output.normal_out += var_name + " = NULL;\n"
 
     def parse_function(self,
                        output: Output,
@@ -70,6 +88,9 @@ class CParser:
                     vector.parse_variable(tokens, string)
                 elif string in c_list.variables:
                     c_list.parse_variable(tokens, string)
+                elif string == "free":
+                    output.normal_out += string
+                    self.parse_free(output, tokens)
                 else:
                     output.normal_out += string
             else:
