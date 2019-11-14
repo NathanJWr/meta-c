@@ -1,5 +1,5 @@
 from c_token import CToken, Tok
-from c_parser_utils import get_whole_name, get_func_args, eat_white_space
+from c_parser_utils import get_func_args
 from c_var import CVarData
 from logging import log_error
 from container_def import ContainerDef
@@ -37,69 +37,6 @@ def purge_variables(self, variables: List[str]) -> None:
     for var in variables:
         if var in self.variables:
             del self.variables[var]
-
-def parse(self, tokens: deque) -> str:
-    normal_out = self.output.normal_out
-    token: CToken
-    var_name: str = ""
-    list_name: str = ""
-    list_type: str = ""
-
-    tokens.popleft() # eat 'list'
-    token = tokens[0]
-    if token.string == "_":
-        self.parse_function(tokens)
-        return var_name
-    if token.string != "<":
-        log_error(token, "Expected '<' in listtor declaration")
-    tokens.popleft() # eat '<'
-
-    list_type = tokens[0].string
-    list_name = self.generate_definition(list_type)
-
-    tokens.popleft()
-    token = tokens[0]
-    if token.string != ">":
-        log_error(token, "Expected '>' in list declaration")
-
-    tokens.popleft() # eat '>'
-    eat_white_space(tokens)
-
-    preamble = ""
-    pointer = 0
-    while tokens[0].string == "*":
-        tokens.popleft()
-        preamble += "*"
-        pointer += 1
-
-    # get whole var name
-    eat_white_space(tokens)
-    var_name = get_whole_name(tokens)
-
-
-    # The variable should be discarded when leaving a function
-    self.variables[var_name] = CVarData(list_type, pointer)
-
-    while (token.val != Tok.semicolon
-            and token.string != ")"
-            and token.string != "="):
-        token = tokens.popleft()
-
-    if (var_name == ""):
-        # Assume user just wants replacement to struct name
-        normal_out += list_name + preamble + token.string
-
-    elif (token.val == Tok.semicolon):
-        tokens.popleft()
-        # listtor_'type' name;
-        normal_out += list_name + preamble + " "+ var_name + ";\n"
-    elif (token.val == Tok.right_paren):
-        normal_out += list_name + preamble + " " + var_name + ")"
-    else:
-        normal_out += list_name + preamble + " " + var_name + " " + token.string
-
-    self.output.normal_out = normal_out
-    return var_name
 
 def parse_function(self, tokens: deque) -> None:
     normal_out = self.output.normal_out

@@ -4,6 +4,7 @@ from c_token import CToken
 
 from typing import Dict, List
 from collections import deque
+import c_container
 
 import c_list_pvt
 class CList:
@@ -25,7 +26,7 @@ class CList:
     def purge_variables(self, variables: List[str]) -> None:
         return c_list_pvt.purge_variables(self, variables)
     def parse(self, tokens: deque) -> str:
-        return c_list_pvt.parse(self, tokens)
+        return c_container.parse(self, tokens, "list")
     def parse_function(self, tokens: deque) -> None:
         return c_list_pvt.parse_function(self, tokens)
     def get_var_type(self, var_name: str, token: CToken) -> str:
