@@ -13,12 +13,13 @@ init_time = time.time()
 file_list = ["test_list.c", "test_vector.c"]
 source_file_count = 0
 bounds_checked = False
+null_on_free = False
 
 fullCmdArguments = sys.argv
 argumentList = fullCmdArguments[1:]
 
-unixOptions = "hvb"
-gnuOptions = ["help", "verbose", "bounds_checked"]
+unixOptions = "hvbn"
+gnuOptions = ["help", "verbose", "bounds_checked", "null_on_free"]
 try:
     arguments, values = getopt.getopt(argumentList, unixOptions, gnuOptions)
 except getopt.error as err:
@@ -32,6 +33,8 @@ for current_arg, current_val in arguments:
         print("displaying help")
     elif current_arg in ("-b", "--bounds_checked"):
         bounds_checked = True
+    elif current_arg in ("-n", "--null_on_free"):
+        null_on_free = True
 
 while source_file_count < len(file_list):
     cur_file = open(file_list[source_file_count], 'r')
@@ -45,7 +48,7 @@ while source_file_count < len(file_list):
             break
 
     output = Output()
-    parser = CParser(bounds_checked)
+    parser = CParser(bounds_checked, null_on_free)
     parser.parse(output, token_list, source_file_count)
 
     # output to files

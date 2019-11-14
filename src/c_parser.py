@@ -25,9 +25,14 @@ def ignore_quotation(output: Output, tokens: deque) -> None:
 class CParser:
     function_types = ["char", "short", "int", "long", "void"]
     bounds_checked: bool
-    def __init__(self, bounds_checked: bool):
+    null_on_free: bool
+    def __init__(self, bounds_checked: bool, null_on_free: bool):
         self.bounds_checked = bounds_checked
+        self.null_on_free = null_on_free
     def parse_free(self, output: Output, tokens: deque) -> None:
+        if not self.null_on_free:
+            return
+        
         tabs = tokens[0].num_tabs
         while tokens[0].val != Tok.left_paren:
             token = tokens.popleft()
