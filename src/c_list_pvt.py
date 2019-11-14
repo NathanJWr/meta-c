@@ -1,32 +1,11 @@
 from c_token import CToken, Tok
-from c_parser_utils import get_func_args
 from c_var import CVarData
-from logging import log_error
+from c_logging import log_error
 from container_def import ContainerDef
+import c_parser_utils as parser_utils
 
 from collections import deque
 from typing import Dict, List
-
-def insert_address(reference_count) -> str:
-    string = ""
-    if reference_count > 1:
-        string += "("
-        for i in range(1, reference_count):
-            string += "*"
-    elif reference_count == 0:
-        string += "(&"
-    else:
-        string += "("
-    return string
-def insert_copy(reference_count) -> str:
-    string = ""
-    if reference_count >= 1:
-        string += "("
-        for i in range(0, reference_count):
-            string += "*"
-    else:
-        string += "("
-    return string
 
 def write_to_file(self, list_type) -> None:
     output_file = open("__list_" + list_type + ".h", 'w')
@@ -47,19 +26,19 @@ def parse_function(self, tokens: deque) -> None:
     if token.string == "init":
         tokens.popleft() # eat 'init'
         tokens.popleft() # eat '('
-        args = get_func_args(tokens)
+        args = parser_utils.get_func_args(tokens)
         if len(args) != 1:
             log_error(tokens[0], "Invalid number of arguments in call to 'list_init'")
         var_name = args[0]
         var_type = self.get_var_type(var_name, tokens[0])
         normal_out += "list_" + var_type + "_init"
         reference = self.variables[var_name].pointer
-        normal_out += insert_address(reference)
+        normal_out += parser_utils.insert_address(reference)
         normal_out +=  var_name
     elif token.string == "pushfront":
         tokens.popleft() # eat 'pushfront'
         tokens.popleft() # eat '('
-        args = get_func_args(tokens)
+        args = parser_utils.get_func_args(tokens)
         if len(args) != 2:
             log_error(tokens[0], "Invalid number of arguments in call to 'list_pushfront'")
         var_name = args[0]
@@ -67,12 +46,12 @@ def parse_function(self, tokens: deque) -> None:
         item = args[1]
         normal_out += "list_" + var_type + "_pushfront"
         reference = self.variables[var_name].pointer
-        normal_out += insert_address(reference)
+        normal_out += parser_utils.insert_address(reference)
         normal_out += var_name + ", " + item
     elif token.string == "pushback":
         tokens.popleft() # eat 'pushback'
         tokens.popleft() # eat '('
-        args = get_func_args(tokens)
+        args = parser_utils.get_func_args(tokens)
 
         if len(args) != 2:
             log_error(tokens[0], "Invalid number of arguments in call to 'list_pushback'")
@@ -81,36 +60,36 @@ def parse_function(self, tokens: deque) -> None:
         item = args[1]
         normal_out += "list_" + var_type + "_pushback"
         reference = self.variables[var_name].pointer
-        normal_out += insert_address(reference)
+        normal_out += parser_utils.insert_address(reference)
         normal_out += var_name + ", " + item
     elif token.string == "front":
         tokens.popleft() # eat 'front'
         tokens.popleft() # eat '('
-        args = get_func_args(tokens)
+        args = parser_utils.get_func_args(tokens)
         if len(args) != 1:
             log_error(tokens[0], "Invalid number of arguments in call to 'list_pushfront'")
         var_name = args[0]
         var_type = self.get_var_type(var_name, tokens[0])
         normal_out += "*list_" + var_type + "_front"
         reference = self.variables[var_name].pointer
-        normal_out += insert_copy(reference)
+        normal_out += parser_utils.insert_copy(reference)
         normal_out += var_name
     elif token.string == "popfront":
         tokens.popleft() # eat 'popfront'
         tokens.popleft() # eat '('
-        args = get_func_args(tokens)
+        args = parser_utils.get_func_args(tokens)
         if len(args) != 1:
             log_error(tokens[0], "Invalid number of arguments in call to 'list_pushfront'")
         var_name = args[0]
         var_type = self.get_var_type(var_name, tokens[0])
         normal_out += "list_" + var_type + "_popfront"
         reference = self.variables[var_name].pointer
-        normal_out += insert_address(reference)
+        normal_out += parser_utils.insert_address(reference)
         normal_out += var_name
     elif token.string == "at":
         tokens.popleft() # eat 'at'
         tokens.popleft() # eat '('
-        args = get_func_args(tokens)
+        args = parser_utils.get_func_args(tokens)
         if len(args) != 2:
             log_error(tokens[0], "Invalid number of arguments in call to 'list_pushfront'")
         var_name = args[0]
@@ -118,20 +97,20 @@ def parse_function(self, tokens: deque) -> None:
         index = args[1]
         normal_out += "*list_" + var_type + "_at"
         reference = self.variables[var_name].pointer
-        normal_out += insert_copy(reference)
+        normal_out += parser_utils.insert_copy(reference)
         normal_out += var_name + ", " + index
 
     elif token.string == "free":
         tokens.popleft() # eat 'free'
         tokens.popleft() # eat '('
-        args = get_func_args(tokens)
+        args = parser_utils.get_func_args(tokens)
         if len(args) != 1:
             log_error(tokens[0], "Invalid number of arguments in call to 'list_pushfront'")
         var_name = args[0]
         var_type = self.get_var_type(var_name, tokens[0])
         reference = self.variables[var_name].pointer
         normal_out += "list_" + var_type + "_free"
-        normal_out += insert_address(reference)
+        normal_out += parser_utils.insert_address(reference)
         normal_out += var_name
 
     else:
@@ -162,7 +141,7 @@ def parse_variable(self, tokens: deque, var_name: str) -> None:
         normal_out += "*list_" + self.get_var_type(var_name, tokens[0])
         normal_out += "_at"
         reference = self.variables[var_name].pointer
-        normal_out += insert_copy(reference)
+        normal_out += parser_utils.insert_copy(reference)
         normal_out += var_name + ", "
 
         token = tokens[0]

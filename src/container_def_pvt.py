@@ -1,3 +1,107 @@
+def generate_vector(self, vec_type: str) -> str:
+    name = "vector_" + vec_type
+    tab = "    "
+    output = ""
+
+    output += "#include <stdlib.h>\n"
+    output += "#ifndef VECTOR_" + vec_type + "_\n"
+    output += "#define VECTOR_" + vec_type + "_\n"
+
+    # generate the vec struct
+    # Typedef struct {
+    #     Type* Items;
+    #     int TotSize;
+    #     int CurSize;
+    # } vector_Type;
+    output += "typedef struct {\n"
+    output += tab + vec_type + "* items;\n"
+    output += tab + "int tot_size;\n"
+    output += tab + "int cur_size;\n"
+    output += "} vector_" + vec_type + ";\n"
+
+
+    # void Vector_'Type'_init(Vector_'Type' *Vec) {
+    #      Vec->Items = malloc(100 * sizeof('Type'));
+    #      Vec->TotSize = 100;
+    #      Vec->CurSize = 0;
+    # }
+    output += "static void " + name + "_init(" + name + " *vec) {\n"
+    output += tab + "vec->items = "
+    output += "(" + vec_type + " *) "
+    output +="malloc(100 * sizeof(" + vec_type + "));\n"
+    output += tab + "vec->tot_size = 100;\n"
+    output += tab + "vec->cur_size = 0;\n"
+    output += "}\n"
+
+    # void vector_'Type'_expand(vector_'Type' *Vec) {
+    #     Vec->TotSize = Vec->TotSize  * 2;
+    #     Vec->Items = realloc(Vec->Items, sizeof('Type') * Vec->TotSize);
+    # }
+    output += "static void vector_" + vec_type + "_expand(vector_" + vec_type + " *vec) {\n"
+    output += tab + "vec->tot_size = vec->tot_size * 2;\n"
+    output += tab + "vec->items = (" + vec_type + " *) "
+    output += "realloc(vec->items, sizeof(" + vec_type + ") * vec->tot_size);\n"
+    output += "}\n"
+
+    # void Vector_'Type'_push(Vector_'Type' *Vec, 'Type' Item) {
+    #      if (Vec->TotSize == Vec->CurSize) {
+    #      }
+    #      Vec->Items[Vec->CurSize++] = Item;
+    #  }
+    output += "static void " + name + "_push(" + name + " *vec, " + vec_type + " item) {\n"
+    output += tab + "if (vec->tot_size == vec->cur_size) {\n"
+    output += tab + tab + "vector_" + vec_type + "_expand(vec);\n"
+    output += tab + "}\n"
+    output += tab + "vec->items[vec->cur_size++] = item;\n"
+    output += "}\n"
+
+    # void vector_'Type'_insert(vector_'Type' *Vec, 'Type' Pos, 'Type' Item) {
+    #    for ('Type' i = Vec->CurSize + 1; i > Pos - 1; i--) {
+    #        Vec->Items[i+1] = Vec->Items[i]; 
+    #    }
+    #    Vec->Items[Pos] = Item;
+    #    Vec->CurSize++;
+    # }
+    output += "static void vector_" + vec_type + "_insert(vector_" + vec_type + " *vec, int pos, " + vec_type + " item) {\n"
+    output += tab + "for (int i = vec->cur_size + 1; i > pos - 1; i--) {\n"
+    output += tab + tab + "vec->items[i+1] = vec->items[i];\n"
+    output += tab + "}\n"
+    output += tab + "vec->items[pos] = item;\n"
+    output += tab + "vec->cur_size++;\n"
+    output += "}\n"
+
+    #  inline 'Type'* vector_'Type'_at(vector_'Type' Vec, int Pos) {
+    #      return &Vec.Items[Pos]
+    #  }
+    output += "static inline " + vec_type + "* vector_" + vec_type +"_at(vector_" +vec_type + " vec, int pos) {\n"
+    output += tab + "return &vec.items[pos];\n"
+    output += "}\n"
+
+    # inline 'Type'* vector_'Type'_front(vector_'Type' vec) {
+    #       return &vec->items[0]
+    # }
+    output += "static inline " + vec_type + "* vector_" + vec_type
+    output += "_front(vector_" + vec_type + " vec) {\n"
+    output += tab + "return &vec.items[0];\n"
+    output += "}\n"
+
+    
+    # static inline void vector_'Type'_free(vector_'Type' *Vec) {
+    #      free(Vec->Items);
+    #      Vec->Items = 0;
+    #      Vec->CurSize = 0;
+    #      Vec->TotSize = 0;
+    # }
+    output += "static inline void vector_" + vec_type + "_free(vector_" + vec_type + " *vec) {\n"
+    output += tab + "free(vec->items);\n"
+    output += tab + "vec->items = 0;\n"
+    output += tab + "vec->cur_size = 0;\n"
+    output += tab + "vec->tot_size = 0;\n"
+    output += "}\n"
+
+    output += "#endif // VECTOR_" + vec_type + "_\n"
+    return output
+
 def generate_list(self, list_type) -> str:
     name = "list_" + list_type
     tab = "    "

@@ -51,3 +51,24 @@ def get_func_arg(tokens: deque) -> str:
         else:
             arg += token.string
         tokens.popleft()
+
+def insert_address(reference_count) -> str:
+    string = ""
+    if reference_count > 1:
+        string += "("
+        for _ in range(1, reference_count):
+            string += "*"
+    elif reference_count == 0:
+        string += "(&"
+    else:
+        string += "("
+    return string
+def insert_copy(reference_count) -> str:
+    string = ""
+    if reference_count >= 1:
+        string += "("
+        for _ in range(0, reference_count):
+            string += "*"
+    else:
+        string += "("
+    return string

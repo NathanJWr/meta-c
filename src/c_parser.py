@@ -1,8 +1,8 @@
-from vector import Vector
 from output import Output
 from c_token import CToken, Tok
 from c_parser_utils import get_whole_name, eat_white_space
 from c_list import CList
+from c_vector import CVector
 
 from collections import deque
 from typing import List
@@ -33,7 +33,7 @@ class CParser:
                        source_file: int,
                        name: str,
                        c_type: str,
-                       vector: Vector,
+                       vector: CVector,
                        c_list: CList) -> None:
         print("Parsing " + name)
         local_vars: List[str] = []
@@ -86,7 +86,7 @@ class CParser:
               output: Output,
               tokens: deque,
               source_file: int) -> None:
-        vector = Vector(output)
+        vector = CVector(output, self.bounds_checked)
         c_list = CList(output, self.bounds_checked)
         while tokens:
             token = tokens[0]
