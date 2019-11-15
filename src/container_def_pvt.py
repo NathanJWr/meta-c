@@ -4,6 +4,8 @@ def generate_vector(self, vec_type: str) -> str:
     output = ""
 
     output += "#include <stdlib.h>\n"
+    if self.bounds_checked:
+        output += "#include <assert.h>\n"
     output += "#ifndef VECTOR_" + vec_type + "_\n"
     output += "#define VECTOR_" + vec_type + "_\n"
 
@@ -43,12 +45,12 @@ def generate_vector(self, vec_type: str) -> str:
     output += "realloc(vec->items, sizeof(" + vec_type + ") * vec->tot_size);\n"
     output += "}\n"
 
-    # void Vector_'Type'_push(Vector_'Type' *Vec, 'Type' Item) {
+    # void Vector_'Type'_pushback(Vector_'Type' *Vec, 'Type' Item) {
     #      if (Vec->TotSize == Vec->CurSize) {
     #      }
     #      Vec->Items[Vec->CurSize++] = Item;
     #  }
-    output += "static void " + name + "_push(" + name + " *vec, " + vec_type + " item) {\n"
+    output += "static void " + name + "_pushback(" + name + " *vec, " + vec_type + " item) {\n"
     output += tab + "if (vec->tot_size == vec->cur_size) {\n"
     output += tab + tab + "vector_" + vec_type + "_expand(vec);\n"
     output += tab + "}\n"
@@ -63,6 +65,12 @@ def generate_vector(self, vec_type: str) -> str:
     #    Vec->CurSize++;
     # }
     output += "static void vector_" + vec_type + "_insert(vector_" + vec_type + " *vec, int pos, " + vec_type + " item) {\n"
+    if self.bounds_checked:
+        output += tab + "assert(pos >= 0);\n"
+        output += tab + "assert(pos < vec->cur_size + 1);\n"
+    output += tab + "if (vec->tot_size == vec->cur_size) {\n"
+    output += tab + tab + "vector_" + vec_type + "_expand(vec);\n"
+    output += tab + "}\n"
     output += tab + "for (int i = vec->cur_size + 1; i > pos - 1; i--) {\n"
     output += tab + tab + "vec->items[i+1] = vec->items[i];\n"
     output += tab + "}\n"
@@ -74,6 +82,9 @@ def generate_vector(self, vec_type: str) -> str:
     #      return &Vec.Items[Pos]
     #  }
     output += "static inline " + vec_type + "* vector_" + vec_type +"_at(vector_" +vec_type + " vec, int pos) {\n"
+    if self.bounds_checked:
+        output += tab + "assert(pos >= 0);\n"
+        output += tab + "assert(pos < vec.cur_size);\n"
     output += tab + "return &vec.items[pos];\n"
     output += "}\n"
 
@@ -82,6 +93,8 @@ def generate_vector(self, vec_type: str) -> str:
     # }
     output += "static inline " + vec_type + "* vector_" + vec_type
     output += "_front(vector_" + vec_type + " vec) {\n"
+    if self.bounds_checked:
+        output += tab + "assert(vec.cur_size != 0);\n"
     output += tab + "return &vec.items[0];\n"
     output += "}\n"
 

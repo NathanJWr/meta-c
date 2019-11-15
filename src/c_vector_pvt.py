@@ -21,16 +21,16 @@ def parse_function(self, tokens: deque) -> None:
     token = tokens[0]
     var_type = ""
 
-    if token.string == "push":
-        tokens.popleft() # "eat 'push'
+    if token.string == "pushback":
+        tokens.popleft() # "eat 'pushback'
         tokens.popleft() # "eat '('
         args = parser_utils.get_func_args(tokens)
         if len(args) != 2:
-            log_error(tokens[0], invalid_num_args + "'vector_push'")
+            log_error(tokens[0], invalid_num_args + "'vector_pushback'")
 
         var_name = args[0]
         var_type = self.get_var_type(var_name, tokens[0])
-        normal_out += "vector_" + var_type + "_push"
+        normal_out += "vector_" + var_type + "_pushback"
         reference = self.variables[var_name].pointer
         normal_out += parser_utils.insert_address(reference)
         normal_out += var_name + ", " + args[1]
@@ -95,7 +95,7 @@ def parse_function(self, tokens: deque) -> None:
         normal_out += parser_utils.insert_address(reference)
         normal_out += var_name
     else:
-        log_error(tokens[0], "Function is not supported by the list container")
+        log_error(tokens[0], "Function is not supported by the vector container")
 
     token = tokens[0]
     while token.string != ";":
@@ -120,7 +120,7 @@ def parse_variable(self, tokens: deque, var_name: str) -> None:
         tokens.popleft()
         normal_out = self.output.normal_out
         normal_out += "*vector_" + self.get_var_type(var_name, tokens[0])
-        normal_out += "_at("
+        normal_out += "_at"
         reference = self.variables[var_name].pointer
         normal_out += parser_utils.insert_copy(reference)
         normal_out += var_name + ", "
