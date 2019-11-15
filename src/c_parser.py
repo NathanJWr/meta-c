@@ -160,11 +160,11 @@ class CParser:
         return
 
     def parse_typedef(self, output: Output, tokens: deque) -> None:
-        token = tokens.popleft() # eat 'typedef'
+        breakpoint()
+        tokens.popleft() # eat 'typedef'
 
-        while token.val != Tok.identifier:
-            token = tokens.popleft()
-
+        eat_white_space(tokens)
+        token = tokens[0]
         if token.val == Tok.struct:
             output.global_out += "typedef " + token.string
             while token.val != Tok.right_bracket:

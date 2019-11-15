@@ -1,5 +1,26 @@
 #include <stdio.h>
 #include <assert.h>
+typedef struct {
+    int num1;
+    int num2;
+} LargeNumber;
+void test_all_functions_with_pointer() {
+    vector<int>* nums = malloc(sizeof(vector<int>));
+    vector_init(nums);
+
+    int i;
+    for (i = 0; i < 1000; i++) {
+        vector_pushback(nums, i);
+    }
+    for (i = 0; i < 1000; i++) {
+        assert(nums[i] == i);
+    }
+    nums[50] = 4812;
+    assert(vector_at(nums, 50) == 4812);
+
+
+    vector_free(nums);
+}
 void test_all_function_calls() {
     int i;
     vector<char> chars;
