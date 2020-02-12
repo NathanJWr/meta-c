@@ -1,0 +1,6 @@
+1. Move container defintions to an easier to edit format
+
+
+Ideas:
+    * Change declare anywhere variables to c89 declarations
+    
