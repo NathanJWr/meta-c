@@ -1,6 +1,7 @@
 from c_parser_utils import get_whole_name, eat_white_space
 from c_token import CToken, Tok
 from c_var import CVarData
+from c_logging import log_error
 
 from collections import deque
 def parse(container, tokens: deque, container_name: str) -> str:
