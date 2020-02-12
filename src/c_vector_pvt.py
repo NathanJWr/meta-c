@@ -22,8 +22,6 @@ def parse_function(self, tokens: deque) -> None:
     var_type = ""
 
     if token.string == "push":
-        import pdb
-        pdb.set_trace()
         tokens.popleft() # "eat 'push'
         tokens.popleft() # "eat '('
         args = parser_utils.get_func_args(tokens)

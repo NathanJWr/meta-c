@@ -131,9 +131,8 @@ int main() {
     printf("chars length before free_half: %zu\n", chars.length);
     free_half(&chars);
     printf("chars length after free_half: %zu\n", chars.length);
-    for (int i = 0; i < 26; i++) {
-        printf("%c\n", list_front(chars));
-        list_popfront(chars);
+    for (int i = 0; i < chars.length; i++) {
+        printf("%c\n", chars[i]);
     }
     list_free(nums);
     list_free(chars);
