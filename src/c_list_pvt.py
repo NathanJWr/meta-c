@@ -25,32 +25,29 @@ def parse_function(self, tokens: deque) -> None:
 
     if token.string == "init":
         tokens.popleft() # eat 'init'
-        tokens.popleft() # eat '('
         args = parser_utils.get_func_args(tokens)
         if len(args) != 1:
             log_error(tokens[0], "Invalid number of arguments in call to 'list_init'")
         var_name = args[0]
         var_type = self.get_var_type(var_name, tokens[0])
-        normal_out += "list_" + var_type + "_init"
+        normal_out += "list_" + var_type + "_init("
         reference = self.variables[var_name].pointer
         normal_out += parser_utils.insert_address(reference)
-        normal_out +=  var_name
+        normal_out +=  var_name + ")"
     elif token.string == "pushfront":
         tokens.popleft() # eat 'pushfront'
-        tokens.popleft() # eat '('
         args = parser_utils.get_func_args(tokens)
         if len(args) != 2:
             log_error(tokens[0], "Invalid number of arguments in call to 'list_pushfront'")
         var_name = args[0]
         var_type = self.get_var_type(var_name, tokens[0])
         item = args[1]
-        normal_out += "list_" + var_type + "_pushfront"
+        normal_out += "list_" + var_type + "_pushfront("
         reference = self.variables[var_name].pointer
         normal_out += parser_utils.insert_address(reference)
-        normal_out += var_name + ", " + item
+        normal_out += var_name + ", " + item + ")"
     elif token.string == "pushback":
         tokens.popleft() # eat 'pushback'
-        tokens.popleft() # eat '('
         args = parser_utils.get_func_args(tokens)
 
         if len(args) != 2:
@@ -58,60 +55,56 @@ def parse_function(self, tokens: deque) -> None:
         var_name = args[0]
         var_type = self.get_var_type(var_name, tokens[0])
         item = args[1]
-        normal_out += "list_" + var_type + "_pushback"
+        normal_out += "list_" + var_type + "_pushback("
         reference = self.variables[var_name].pointer
         normal_out += parser_utils.insert_address(reference)
-        normal_out += var_name + ", " + item
+        normal_out += var_name + ", " + item + ")"
     elif token.string == "front":
         tokens.popleft() # eat 'front'
-        tokens.popleft() # eat '('
         args = parser_utils.get_func_args(tokens)
         if len(args) != 1:
             log_error(tokens[0], "Invalid number of arguments in call to 'list_pushfront'")
         var_name = args[0]
         var_type = self.get_var_type(var_name, tokens[0])
-        normal_out += "*list_" + var_type + "_front"
+        normal_out += "*list_" + var_type + "_front("
         reference = self.variables[var_name].pointer
         normal_out += parser_utils.insert_copy(reference)
-        normal_out += var_name
+        normal_out += var_name + ")"
     elif token.string == "popfront":
         tokens.popleft() # eat 'popfront'
-        tokens.popleft() # eat '('
         args = parser_utils.get_func_args(tokens)
         if len(args) != 1:
             log_error(tokens[0], "Invalid number of arguments in call to 'list_pushfront'")
         var_name = args[0]
         var_type = self.get_var_type(var_name, tokens[0])
-        normal_out += "list_" + var_type + "_popfront"
+        normal_out += "list_" + var_type + "_popfront("
         reference = self.variables[var_name].pointer
         normal_out += parser_utils.insert_address(reference)
-        normal_out += var_name
+        normal_out += var_name + ")"
     elif token.string == "at":
         tokens.popleft() # eat 'at'
-        tokens.popleft() # eat '('
         args = parser_utils.get_func_args(tokens)
         if len(args) != 2:
             log_error(tokens[0], "Invalid number of arguments in call to 'list_pushfront'")
         var_name = args[0]
         var_type = self.get_var_type(var_name, tokens[0])
         index = args[1]
-        normal_out += "*list_" + var_type + "_at"
+        normal_out += "*list_" + var_type + "_at("
         reference = self.variables[var_name].pointer
         normal_out += parser_utils.insert_copy(reference)
-        normal_out += var_name + ", " + index
+        normal_out += var_name + ", " + index + ")"
 
     elif token.string == "free":
         tokens.popleft() # eat 'free'
-        tokens.popleft() # eat '('
         args = parser_utils.get_func_args(tokens)
         if len(args) != 1:
-            log_error(tokens[0], "Invalid number of arguments in call to 'list_pushfront'")
+            log_error(tokens[0], "Invalid number of arguments in call to 'list_free'")
         var_name = args[0]
         var_type = self.get_var_type(var_name, tokens[0])
         reference = self.variables[var_name].pointer
-        normal_out += "list_" + var_type + "_free"
+        normal_out += "list_" + var_type + "_free("
         normal_out += parser_utils.insert_address(reference)
-        normal_out += var_name
+        normal_out += var_name + ")"
 
     else:
         log_error(tokens[0], "Function is not supported by the list container")
@@ -139,7 +132,7 @@ def parse_variable(self, tokens: deque, var_name: str) -> None:
         tokens.popleft()
         normal_out = self.output.normal_out
         normal_out += "*list_" + self.get_var_type(var_name, tokens[0])
-        normal_out += "_at"
+        normal_out += "_at("
         reference = self.variables[var_name].pointer
         normal_out += parser_utils.insert_copy(reference)
         normal_out += var_name + ", "
