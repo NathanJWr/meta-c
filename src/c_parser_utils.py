@@ -1,6 +1,7 @@
 from c_token import Tok
 from collections import deque
 from typing import List
+from c_logging import log_error
 
 def get_whole_name(tokens: deque) -> str:
     name = ""
@@ -26,8 +27,21 @@ def get_whole_name(tokens: deque) -> str:
 def eat_white_space(tokens: deque) -> None:
     while tokens[0].string.isspace():
         tokens.popleft()
+def eat_after_semicolon(tokens: deque) -> None:
+    while tokens[0].val != Tok.semicolon:
+        tokens.popleft()
+    tokens.popleft()
+"""
+Expects to start with an opening parenthesis
 
+Eats tokens until reaching a ')'
+Eats the closing parenthesis as well
+"""
 def get_func_args(tokens: deque) -> List:
+    eat_white_space(tokens)
+    open_paren = tokens.popleft()
+    if open_paren.val != Tok.left_paren:
+        log_error(open_paren, "Expected an opening parenthesis")
     token = tokens[0]
     args = []
     while token.string != ")":
@@ -36,6 +50,7 @@ def get_func_args(tokens: deque) -> List:
             token = tokens[0]
         args.append(get_func_arg(tokens))
         token = tokens[0]
+    tokens.popleft()
     return args
 
 def get_func_arg(tokens: deque) -> str:
@@ -55,20 +70,14 @@ def get_func_arg(tokens: deque) -> str:
 def insert_address(reference_count) -> str:
     string = ""
     if reference_count > 1:
-        string += "("
         for _ in range(1, reference_count):
             string += "*"
     elif reference_count == 0:
-        string += "(&"
-    else:
-        string += "("
+        string += "&"
     return string
 def insert_copy(reference_count) -> str:
     string = ""
     if reference_count >= 1:
-        string += "("
         for _ in range(0, reference_count):
             string += "*"
-    else:
-        string += "("
     return string

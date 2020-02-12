@@ -1,6 +1,6 @@
 from output import Output
 from c_token import CToken, Tok
-from c_parser_utils import get_whole_name, eat_white_space
+from c_parser_utils import get_whole_name, eat_white_space, get_func_args, eat_after_semicolon
 from c_list import CList
 from c_vector import CVector
 
@@ -70,6 +70,18 @@ class CParser:
                     vector.parse_variable(tokens, string)
                 elif string in c_list.variables:
                     c_list.parse_variable(tokens, string)
+                elif string == "free":
+                    
+                    output.normal_out += token.string
+                    num_tabs = token.num_tabs
+                    free_var: List = get_func_args(tokens)
+                    eat_after_semicolon(tokens)
+                    output.normal_out += "(" + free_var[0] + ");\n"
+                    for _ in range(0, num_tabs):
+                        output.normal_out += "    "
+                    output.normal_out += free_var[0] + " = NULL;\n"
+                    
+                    
                 else:
                     output.normal_out += string
             else:

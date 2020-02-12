@@ -136,4 +136,7 @@ int main() {
     }
     list_free(nums);
     list_free(chars);
+
+    char* var = malloc(100);
+    free (var);
 }
