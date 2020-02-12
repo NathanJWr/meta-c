@@ -169,7 +169,6 @@ class CParser:
         return
 
     def parse_typedef(self, output: Output, tokens: deque) -> None:
-        breakpoint()
         tokens.popleft() # eat 'typedef'
 
         eat_white_space(tokens)
