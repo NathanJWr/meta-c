@@ -29,26 +29,6 @@ class CParser:
     def __init__(self, bounds_checked: bool, null_on_free: bool):
         self.bounds_checked = bounds_checked
         self.null_on_free = null_on_free
-    def parse_free(self, output: Output, tokens: deque) -> None:
-        if not self.null_on_free:
-            return
-        
-        tabs = tokens[0].num_tabs
-        while tokens[0].val != Tok.left_paren:
-            token = tokens.popleft()
-            output.normal_out += token.string
-        tokens.popleft() # eat 'c'
-        args = get_func_args(tokens)
-        if len(args) != 1:
-            log_error(tokens[0], "Invalid number of arguments for 'free'")
-        var_name = args[0]
-        while tokens[0].val != Tok.newline:
-            token = tokens.popleft()
-        tokens.popleft()
-        output.normal_out += "(" + var_name + ");\n"
-        for _ in range(0, tabs):
-            output.normal_out += "    "
-        output.normal_out += var_name + " = NULL;\n"
 
     def parse_function(self,
                        output: Output,
@@ -58,7 +38,6 @@ class CParser:
                        c_type: str,
                        vector: CVector,
                        c_list: CList) -> None:
-
         local_vars: List[str] = []
         output.normal_out += c_type + " " + name
         nesting = -1
@@ -93,8 +72,7 @@ class CParser:
                     vector.parse_variable(tokens, string)
                 elif string in c_list.variables:
                     c_list.parse_variable(tokens, string)
-                elif string == "free":
-                    
+                elif string == "free" and self.null_on_free:
                     output.normal_out += token.string
                     num_tabs = token.num_tabs
                     free_var: List = get_func_args(tokens)
@@ -102,9 +80,8 @@ class CParser:
                     output.normal_out += "(" + free_var[0] + ");\n"
                     for _ in range(0, num_tabs):
                         output.normal_out += "    "
-                    output.normal_out += free_var[0] + " = NULL;\n"
-                    
-                    
+                        output.normal_out += free_var[0] + " = NULL;\n"
+                        tabs = tokens[0].num_tabs
                 else:
                     output.normal_out += string
             else:

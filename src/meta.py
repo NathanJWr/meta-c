@@ -2,7 +2,7 @@ from c_token import CToken, Tok
 from c_parser import CParser
 from output import Output
 from c_tokenizer import Tokenizer
-import getopt, sys
+import sys, argparse
 import time
 
 from collections import deque
@@ -10,31 +10,24 @@ from typing import Deque, TextIO
 
 init_time = time.time()
 
-file_list = ["list_toomanyargs_init.c"]
+file_list = []
 source_file_count = 0
 bounds_checked = False
 null_on_free = False
 
-fullCmdArguments = sys.argv
-argumentList = fullCmdArguments[1:]
+def get_options(args=sys.argv[1:]):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-i", "--input", nargs='+', help="Input C files.")
+    parser.add_argument("-b", "--bounds-checked", action='store_true', help="Generate bounds checked data structures.")
+    parser.add_argument("-n", "--null-on-free", action='store_true', help="Set variables to NULL whenever a free is called.")
 
-unixOptions = "hvbn"
-gnuOptions = ["help", "verbose", "bounds_checked", "null_on_free"]
-try:
-    arguments, values = getopt.getopt(argumentList, unixOptions, gnuOptions)
-except getopt.error as err:
-    print(str(err))
-    sys.exit(2)
+    options = parser.parse_args(args)
+    return options
 
-for current_arg, current_val in arguments:
-    if current_arg in ("-v", "--verbose"):
-        print("verbose mode")
-    elif current_arg in ("-h", "--help"):
-        print("displaying help")
-    elif current_arg in ("-b", "--bounds_checked"):
-        bounds_checked = True
-    elif current_arg in ("-n", "--null_on_free"):
-        null_on_free = True
+options = get_options()
+bounds_checked = options.bounds_checked
+null_on_free = options.null_on_free
+file_list = options.input
 
 while source_file_count < len(file_list):
     cur_file = open(file_list[source_file_count], 'r')
