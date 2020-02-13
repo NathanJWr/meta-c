@@ -10,7 +10,7 @@ from typing import Deque, TextIO
 
 init_time = time.time()
 
-file_list = ["test_list.c", "test_vector.c"]
+file_list = ["list_toomanyargs_init.c"]
 source_file_count = 0
 bounds_checked = False
 null_on_free = False

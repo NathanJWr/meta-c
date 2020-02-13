@@ -58,7 +58,7 @@ class CParser:
                        c_type: str,
                        vector: CVector,
                        c_list: CList) -> None:
-        print("Parsing " + name)
+
         local_vars: List[str] = []
         output.normal_out += c_type + " " + name
         nesting = -1
